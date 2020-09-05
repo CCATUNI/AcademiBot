@@ -12,6 +12,7 @@ import { StudyFile } from '../models/study-file.model';
 import { QueryIncludes } from '../../../common/decorators/query-includes.decorator';
 import { CREATE_MUTATION_INPUT, UPDATE_MUTATION_INPUT } from '../../../config/constants';
 import { StudyMaterialService } from '../services/study-material.service';
+import { File } from '../../file/models/file.model';
 
 @Resolver(of => StudyMaterial)
 export class StudyMaterialResolver {
@@ -24,9 +25,21 @@ export class StudyMaterialResolver {
   @Query(returns => [StudyMaterial])
   studyMaterials(
     @Args() findArgs: FindStudyMaterialsArgs,
-    @QueryFields(StudyMaterial) attributes: string[]
+    @QueryFields(StudyMaterial) attributes: string[],
+    @QueryIncludes(['files', 'file']) includes: boolean[]
   ) {
-    return this.studyMaterialService.findAll(findArgs, attributes);
+    const paranoid = findArgs.paranoid;
+    delete findArgs.paranoid;
+    const relations = [StudyFile, File].filter((v, i) => includes[i]);
+    if (relations[1]) {
+      relations.splice(1, 1);
+      relations[0] = {
+        model: StudyFile,
+        include: File,
+      } as unknown as typeof StudyFile
+    }
+    return this.studyMaterialRepository
+      .findAll({ where: {...findArgs}, paranoid, attributes, include: relations });
   }
 
   @Query(type => StudyMaterial)
@@ -38,7 +51,6 @@ export class StudyMaterialResolver {
     const paranoid = findArgs.paranoid;
     delete findArgs.paranoid;
     const relations = [StudyFile].filter((v, i) => includes[i]);
-
     return this.studyMaterialRepository
       .findByPk(findArgs.id, { paranoid, attributes, include: relations });
   }

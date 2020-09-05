@@ -15,6 +15,13 @@ export class FindUserAccountArgs extends ParanoidArgs {
 }
 
 @ArgsType()
+export class FindUserAccounts {
+  @IsString()
+  @Field()
+  public platformId: string;
+}
+
+@ArgsType()
 export class FindUserAccountByPlatformArgs {
   @IsString()
   @Field()

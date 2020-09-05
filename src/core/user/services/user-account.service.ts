@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserAccount } from '../models/user-account.model';
 import { User } from '../models/user.model';
-import { CreateUserAccountDto, FindUserAccountArgs } from '../dto/user-account.dto';
+import { CreateUserAccountDto, FindUserAccountArgs, FindUserAccounts } from '../dto/user-account.dto';
 import { Sequelize } from 'sequelize-typescript';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class UserAccountService {
@@ -27,6 +28,16 @@ export class UserAccountService {
       }
       return this.accountRepository.create(createDto, { transaction });
     });
+  }
+
+  async findAllForUpdate(findArgs: FindUserAccounts) {
+    return this.accountRepository
+      .findAll({ where: {...findArgs, publicInformation: null }});
+  }
+
+  async findAdmins() {
+    return this.accountRepository
+      .findAll({ where: { privileges: {[Op.gt]: 0} } } );
   }
 
   createAccountFinder(platformId: string) {

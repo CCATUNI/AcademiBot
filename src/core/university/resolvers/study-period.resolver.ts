@@ -23,7 +23,6 @@ export class StudyPeriodResolver {
     @Args() findArgs: FindStudyPeriodsArgs,
     @QueryFields(StudyPeriod) attributes: string[]
   ) {
-    console.log(findArgs);
     return this.studyPeriodRepository
       .findAll({ where: { ...findArgs }, attributes });
   }
@@ -42,7 +41,6 @@ export class StudyPeriodResolver {
     @Parent() studyPeriod: StudyPeriod,
     @QueryFields(StudyPlan) attributes: string[]
   ) {
-    console.log(studyPeriod.studyPlans);
     if (studyPeriod.studyPlans) return studyPeriod.studyPlans;
     return studyPeriod.getStudyPlans({ attributes });
   }

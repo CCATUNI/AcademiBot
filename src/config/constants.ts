@@ -20,3 +20,5 @@ export const MEME = 'Meme';
 export const PICK_ONE_TEXT = 'Mira, encontre estas opciones, elige una';
 
 export const NOT_FOUND = 'No he podido encontrar lo que buscas';
+
+export const ERROR_SORRY = 'No me es posible responderte ahora';

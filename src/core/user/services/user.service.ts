@@ -17,6 +17,7 @@ export class UserService {
 
   async clearAll(user: User) {
     const updateUserDto: UpdateUserDto = {
+      lookingForElectives: false,
       universityId: null,
       studyPeriodId: null,
       studyProgramId: null,

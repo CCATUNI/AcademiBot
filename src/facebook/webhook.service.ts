@@ -8,11 +8,12 @@ import { FileAccount } from '../core/file/models/file-account.model';
 import { ConversationResponse, ConversationService } from '../conversation/conversation.service';
 import { UserService } from '../core/user/services/user.service';
 import { UniversityService } from '../core/university/services/university.service';
-import { FactoryProvider } from '@nestjs/common';
+import { FactoryProvider, Inject } from '@nestjs/common';
 import { accountToText, toCard, toQuickReplyButton } from '../common/helpers/facebook-transform';
 import { StudyProgramService } from '../core/university/services/study-program.service';
 import { StudyPeriodService } from '../core/university/services/study-period.service';
 import {
+  ERROR_SORRY,
   GET_STUDY_MATERIAL,
   MEME,
   NOT_FOUND,
@@ -32,6 +33,10 @@ import { randomElement } from '../common/helpers/array-operations';
 import { FileLoaderService } from '../filesystem/file-loader.service';
 import { createTicket } from '../common/helpers/ticket-clerk';
 import * as fs from 'fs';
+import appConfig from '../config/app.config';
+import { ConfigType } from '@nestjs/config';
+import { FindStudyMaterialArgs } from '../core/study-material/dto/study-material.dto';
+import { StudyMaterial } from '../core/study-material/models/study-material.model';
 
 type WebhookContext = {
   account: UserAccount;
@@ -51,6 +56,7 @@ type PartialWebhookContext = {
 export class WebhookService {
   private readonly userAccountFinder: (identifierInPlatform: string) => Promise<UserAccount | null>;
   private readonly fileAccountFinder: (fileId: number) => Promise<FileAccount | null>;
+  private readonly studyFileFinder: (findArgs: FindStudyMaterialArgs) => Promise<StudyMaterial>;
   private welcome?: FileAccount;
   public platform?: Platform;
   constructor(
@@ -67,10 +73,13 @@ export class WebhookService {
     private studyPlanService: StudyPlanService,
     private fileAccountService: FileAccountService,
     private platformService: PlatformService,
-    private fileLoaderService: FileLoaderService
+    private fileLoaderService: FileLoaderService,
+    @Inject(appConfig.KEY)
+    private readonly appConfiguration: ConfigType<typeof appConfig>
   ) {
     this.userAccountFinder = this.userAccountService.createAccountFinder(FacebookService.PLATFORM);
     this.fileAccountFinder = this.fileAccountService.createAccountFinder(FacebookService.PLATFORM);
+    this.studyFileFinder = this.studyMaterialService.createMaterialFinder(FacebookService.PLATFORM);
   }
 
   async setup() {
@@ -155,7 +164,7 @@ export class WebhookService {
       }
     } else if (!studyProgramId) {
       const cards = (await this.studyProgramService
-        .findAll({ universityId }))
+        .findForSending({ universityId }))
         .map(toCard);
       if (cards.length) {
         await this.facebookService.sendCardsMenu(id, cards);
@@ -165,7 +174,7 @@ export class WebhookService {
     } else {
       if (!studyPeriodId) {
         const buttons = (await this.studyPeriodService
-          .findAll({ universityId }))
+          .findForSend({ universityId }))
           .map(toQuickReplyButton);
         if (buttons.length) {
           await this.facebookService.sendQuickReplies(id, PICK_ONE_TEXT, buttons);
@@ -223,6 +232,24 @@ export class WebhookService {
           }
           return ;
         }
+      } else {
+        if (!courseId) {
+          const studyPlans = await this.studyPlanService
+            .findValid({ universityId, studyProgramId, studyPeriodId });
+          const cards = studyPlans.map(v => toCard(v.course));
+          if (cards.length) {
+            await this.facebookService.sendCardsMenu(id, cards);
+            ctx.ended = true;
+          }
+        } else if (!activityTypeId) {
+          const types = await this.studyMaterialService
+            .findActivityTypes({ universityId, courseId });
+          const buttons = types.map(toQuickReplyButton);
+          if (buttons.length) {
+            await this.facebookService.sendQuickReplies(id, PICK_ONE_TEXT, buttons);
+            ctx.ended = true;
+          }
+        }
       }
 
     }
@@ -239,6 +266,7 @@ export class WebhookService {
     switch (command) {
       case START:
         await this.userService.clearAll(account.user);
+        await this.regularizeUser(ctx);
         return ;
       case UPDATE_USER:
         // Just in case...
@@ -256,8 +284,13 @@ export class WebhookService {
       case SHOW_STUDY_MATERIAL:
         await this.regularizeUser(ctx);
         if (ctx.ended) return ;
+        const find = {
+          activityTypeId: user.activityTypeId,
+          courseId: user.courseId,
+          universityId: user.universityId
+        };
         const studyMaterial = await this.studyMaterialService
-          .findAll(user)
+          .findAll(find);
         if (studyMaterial.length) {
           const buttons = studyMaterial.map(toQuickReplyButton);
           await this.facebookService.sendQuickReplies(id, PICK_ONE_TEXT, buttons);
@@ -270,16 +303,27 @@ export class WebhookService {
         return ;
       case GET_STUDY_MATERIAL:
         const studyMaterialId = parameters.id as string;
-        const material = await this.studyMaterialService
-          .findById({ id: studyMaterialId });
-        const fileAccounts = await Promise.all(material.files
-          .map(v => this.fileAccountFinder(v.fileId)));
-        const results = await this.facebookService.sendSequentialAttachments(id, fileAccounts);
+        const material = await this
+          .studyFileFinder({ id: studyMaterialId });
+        const studyFiles = material.files
+          .filter(v => v.file && v.file.accounts.find(a => a.platformId === FacebookService.PLATFORM));
+        const attachments = studyFiles.map(v => {
+          const account = v.file.accounts
+            .find(a => a.platformId === FacebookService.PLATFORM);
+          const url = v.file.getPrivateUrl() ?
+            `${process.env.SERVER_URL}/${v.file.getPrivateUrl()}` : v.file.publicUrl;
+          return {
+            fileType: account.fileType,
+            url,
+            reUtilizationCode: account.reUtilizationCode
+          }
+        })
+        const results = await this.facebookService.sendSequentialAttachments(id, attachments);
         for (let i = 0; i < results.length; i++) {
           const result = results[i];
           const values = {
             userId: user.id,
-            fileId:fileAccounts[i].fileId,
+            fileId:studyFiles[i].id,
             error: undefined
           };
           if (result instanceof Error) {
@@ -338,36 +382,57 @@ export class WebhookService {
     } else if (answer.payload.petition) {
       return this.executePetition(ctx);
     } else {
-      throw new Error("Payload not supported" + answer.payload);
+      throw new Error("Payload not supported " + JSON.stringify(answer.payload));
     }
   }
 
   async receivePostback(id: string, postback: WebhookPostBack) {
-    await this.facebookService.markSeen(id);
+    this.facebookService.markSeen(id)
+      .then(() => this.facebookService.typingOn(id))
+      .catch(e => console.error(e.message));
     const account = await this.getAccount(id);
-    await this.facebookService.typingOn(id);
     const payload = postback.payload;
-    let answer: ConversationResponse;
+    const answer: ConversationResponse = undefined;
+    const ctx: PartialWebhookContext = { account, answer, ended: false };
+
     try {
-      answer = JSON.parse(payload);
+      ctx.answer = JSON.parse(payload);
+      await this.executeAnswer(ctx);
     } catch (e) {
-      answer = {
-        text: JSON.stringify(e),
-        payload: {},
-        parameters: {}
+      if (!this.appConfiguration.production) {
+        console.error(e);
+        ctx.answer = {
+          text: e.message,
+          payload: {},
+          parameters: {}
+        }
       }
     }
-    const ctx: PartialWebhookContext = { account, answer, ended: false };
-    await this.executeAnswer(ctx);
+    if (ctx.answer && ctx.answer.text) {
+      try {
+        await this.facebookService.sendText(account.identifierInPlatform, ctx.answer.text);
+        account
+          .createMessage({ textContent: ctx.answer.text, sentByUser: false })
+          .catch(console.error);
+      } catch (e) {
+        account
+          .createMessage({ textContent: ctx.answer.text, sentByUser: false, error: Object(e) })
+          .catch(console.error);
+      }
+    }
     return ;
   }
 
   async receiveMessage(id: string, message: WebhookMessage) {
-    await this.facebookService.markSeen(id);
-    const account = await this.getAccount(id);
-    await this.facebookService.typingOn(id);
+    this.facebookService.markSeen(id)
+      .then(() => this.facebookService.typingOn(id))
+      .catch(e => console.error(e.message));
     const text = message.text;
-    // Left as promises on purpose
+    const account = await this.getAccount(id);
+    account
+      .createMessage({ textContent: text, sentByUser: true })
+      .catch(console.error);
+    // Left as not awaited promises on purpose
 
     if (message.attachments) {
       const urls = message.attachments
@@ -381,39 +446,52 @@ export class WebhookService {
 
     if (!text) return ;
 
-    account
-      .createMessage({ textContent: text, sentByUser: true })
-      .catch(console.error);
-
-    let answer: ConversationResponse;
-    if (message.quick_reply) {
-      try {
-        answer = JSON.parse(message.quick_reply.payload);
-      } catch (e) {
-        console.error(e);
+    const answer: ConversationResponse = undefined;
+    const ctx: WebhookContext = { account, message, answer, ended: false };
+    //NOTE: Check this
+    try {
+      if (message.quick_reply) {
+        ctx.answer = JSON.parse(message.quick_reply.payload);
       }
-    }
-    if (!answer) {
-      try {
-        answer = await this.conversationService.processText(id, text);
-      } catch (e) {
-        answer = {
-          text: JSON.stringify(e),
+      if (!ctx.answer) {
+        ctx.answer = await this.conversationService.processText(id, text);
+      }
+      await this.executeAnswer(ctx);
+    } catch (e) {
+      if (!this.appConfiguration.production) {
+        console.error(e);
+        ctx.answer = {
+          text: e.message,
           payload: {},
           parameters: {}
         }
       }
     }
 
-    const ctx: WebhookContext = { account, message, answer, ended: false };
-    await this.executeAnswer(ctx);
+
     if (ctx.ended) {
       return ;
     }
-    account
-      .createMessage({ textContent: answer.text, sentByUser: false })
-      .catch(console.error);
-    await this.facebookService.sendText(id, answer.text, true);
+
+    if (!ctx.answer) {
+      ctx.answer = {
+        text: ERROR_SORRY,
+        payload: {},
+        parameters: {}
+      }
+    }
+
+    try {
+      await this.facebookService.sendText(id, ctx.answer.text, true);
+      account
+        .createMessage({ textContent: ctx.answer.text, sentByUser: false })
+        .catch(console.error);
+    } catch (e) {
+      account
+        .createMessage({ textContent: ctx.answer.text, sentByUser: false, error: Object(e) })
+        .catch(console.error);
+    }
+
     return ;
   }
 }
@@ -434,7 +512,8 @@ export const WebhookProvider: FactoryProvider<Promise<WebhookService>> = {
     studyPlanService: StudyPlanService,
     fileAccountService: FileAccountService,
     platformService: PlatformService,
-    fileLoaderService: FileLoaderService
+    fileLoaderService: FileLoaderService,
+    appConfiguration: ConfigType<typeof appConfig>
   ) => {
     const service = new WebhookService(
       facebookService,
@@ -451,6 +530,7 @@ export const WebhookProvider: FactoryProvider<Promise<WebhookService>> = {
       fileAccountService,
       platformService,
       fileLoaderService,
+      appConfiguration
     );
     await service.setup();
     return service;
@@ -469,6 +549,7 @@ export const WebhookProvider: FactoryProvider<Promise<WebhookService>> = {
     StudyPlanService,
     FileAccountService,
     PlatformService,
-    FileLoaderService
+    FileLoaderService,
+    appConfig.KEY
   ]
 }

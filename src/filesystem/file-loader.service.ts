@@ -13,6 +13,9 @@ export class FileLoaderService {
     private filesystemService: FilesystemService
   ) {}
 
+  // NOTE: Watch out for unwanted calls as it may upload duplicated files
+  // Possible solution, upload to database to check if the sha exists before
+  // uploading to filesystem
   async loadOne(buffer: Buffer, prefix: string) {
     const hash = crypto.createHash('sha256');
     hash.update(buffer);

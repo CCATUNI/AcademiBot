@@ -7,7 +7,7 @@ export const ChannelConfigModule = ConfigModule.forRoot({
   validationSchema: Joi.object({
     FACEBOOK_TOKEN: Joi.string(),
     FACEBOOK_API_VERSION: Joi.string().default('5.0'),
-    FACEBOOK_TIMEOUT_FOR_ATTACHMENTS: Joi.string().alphanum().default('200'),
+    FACEBOOK_TIMEOUT_FOR_ATTACHMENTS: Joi.string().alphanum().default('50'),
     FACEBOOK_QUICK_REPLIES_LIMIT: Joi.string().alphanum().default('10'),
     FACEBOOK_CARDS_LIMIT: Joi.string().alphanum().default('10'),
     FACEBOOK_CARDS_BUTTONS_LIMIT: Joi.string().alphanum().default('3'),

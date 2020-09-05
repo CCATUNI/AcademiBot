@@ -43,21 +43,45 @@ export class User extends Model<User> {
 
   @Field({ nullable: true })
   @ForeignKey(() => University)
-  @Column(DataType.STRING({ length: 8 }))
+  @Column({
+    type: DataType.STRING({ length: 8 }),
+    set(this: User, v: string) {
+      this.studyProgramId = null;
+      this.setDataValue('universityId', v);
+    }
+  })
   public universityId?: string;
 
   @Field({ nullable: true })
   @ForeignKey(() => StudyProgram)
-  @Column(DataType.STRING({ length: 8 }))
+  @Column({
+    type: DataType.STRING({ length: 8 }),
+    set(this: User, v: string) {
+      this.studyPeriodId = null;
+      this.setDataValue('studyProgramId', v);
+    }
+  })
   public studyProgramId?: string;
 
   @ForeignKey(() => Course)
-  @Column(DataType.STRING({ length: 12 }))
+  @Column({
+    type: DataType.STRING({ length: 12 }),
+    set(this: User, v: string) {
+      this.activityTypeId = null;
+      this.setDataValue('courseId', v);
+    }
+  })
   public courseId?: string;
 
   @Field({ nullable: true })
   @ForeignKey(() => StudyPeriod)
-  @Column(DataType.SMALLINT({ unsigned: true }))
+  @Column({
+    type: DataType.SMALLINT({ unsigned: true }),
+    set(this: User, v: number) {
+      this.courseId = null;
+      this.setDataValue('studyPeriodId', v);
+    }
+  })
   public studyPeriodId?: number;
 
   @Field({ nullable: true })

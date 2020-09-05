@@ -9,8 +9,9 @@ import { BatchConfigService } from './batch-config.service';
   imports: [ConfigModule.forRoot({
     load: [BatchConfig],
     validationSchema: Joi.object({
-      BATCH_DATABASE_BACKUP: Joi.string(),//.default('0 0 3 * * *'),
-      BATCH_FILE_SYNC: Joi.string()
+      BATCH_DATABASE_BACKUP: Joi.string().optional(),//.default('0 0 3 * * *'),
+      BATCH_FILE_SYNC: Joi.string().optional(),
+      BATCH_SYNC_ACCOUNTS: Joi.string().optional()
     })
   })],
   providers: [BatchConfigService],

@@ -17,14 +17,12 @@ export class StudyPlanService {
     options: {attributes?: string[], include?: Includeable[]}
   ) {
     if (options.include!.includes(StudyMaterial)) {
-      console.log("hey")
       const i = options.include.indexOf(StudyMaterial);
       options.include[i] = {
         model: StudyMaterial,
         on: {
           'course_id': {[Op.col]: 'StudyPlan.course_id'},
-          'university_id': {[Op.col]: 'StudyPlan.university_id'},
-          'study_program_id': {[Op.col]: 'StudyPlan.study_program_id'}
+          'university_id': {[Op.col]: 'StudyPlan.university_id'}
         },
         duplicating: true
       }
@@ -40,8 +38,7 @@ export class StudyPlanService {
         model: StudyMaterial,
         on: {
           'course_id': {[Op.col]: 'StudyPlan.course_id'},
-          'university_id': {[Op.col]: 'StudyPlan.university_id'},
-          'study_program_id': {[Op.col]: 'StudyPlan.study_program_id'}
+          'university_id': {[Op.col]: 'StudyPlan.university_id'}
         },
         duplicating: true,
         required: true
@@ -65,7 +62,14 @@ export class StudyPlanService {
     if (options && options.include) {
       StudyPlanService.addMultipleForeignKey(options);
     }
-    console.log({ ...findArgs }, options);
+    return this.repository.findAll({ where: {...findArgs}, ...options, paranoid });
+  }
+
+  async findValid(findArgs: FindStudyPlansArgs) {
+    const paranoid = findArgs.paranoid;
+    delete findArgs.paranoid;
+    const options = {include:[Course, StudyMaterial]};
+    StudyPlanService.addRequiredMultipleForeignKey(options);
     return this.repository.findAll({ where: {...findArgs}, ...options, paranoid });
   }
 

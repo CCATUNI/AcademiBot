@@ -52,6 +52,10 @@ export class File extends Model<File> {
   public publicUrl?: string;
 
   @Field({ nullable: true })
+  @Column(DataType.STRING({ length: 64 }))
+  public name?: string;
+
+  @Field({ nullable: true })
   @Column(DataType.STRING({ length: 10 }))
   public extension?: string;
 
@@ -70,6 +74,11 @@ export class File extends Model<File> {
   public getAccounts: HasManyGetAssociationsMixin<FileAccount>;
 
   public getStudyFiles: HasManyGetAssociationsMixin<StudyFile>;
+
+  public getPrivateUrl(): string {
+    if (!this.name) return null;
+    return `${this.contentSha256}/${this.name}${this.extension ? '.'+this.extension : ''}`
+  }
 
   @Field()
   public createdAt: Date;

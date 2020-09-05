@@ -7,7 +7,7 @@ import { Card } from '../common/interfaces/Cards.interface';
 import { FacebookConfigService } from './config/facebook-config.service';
 import { QuickReplyButton } from '../common/interfaces/QuickReply.interface';
 
-type Sendable = { url?: string; fileType: string; attachmentId?: string };
+type Sendable = { url?: string; fileType: string; reUtilizationCode?: string };
 
 type FBResponse = { recipientId: string; messageId: string; attachmentId?: string };
 
@@ -86,8 +86,8 @@ export class FacebookService {
       }
     }
     const attachment = param.json.message.attachment;
-    if (parameters.attachmentId) {
-      attachment.payload['attachment_id'] = parameters.attachmentId;
+    if (parameters.reUtilizationCode) {
+      attachment.payload['attachment_id'] = parameters.reUtilizationCode;
     } else if (parameters.url) {
       attachment.payload['url'] = parameters.url;
       attachment.payload['is_reusable'] = true;
@@ -100,8 +100,11 @@ export class FacebookService {
         attachmentId: response.attachment_id,
       }
     } catch (e) {
-      if (parameters.url)
-        return this.sendText(psid, parameters.url, false);
+      if (parameters.url){
+        console.log("Emergency send");
+        await this.sendText(psid, parameters.url, false);
+        throw e;
+      }
       else
         throw e
     }

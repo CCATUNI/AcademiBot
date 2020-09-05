@@ -7,6 +7,7 @@ import { ActivityType } from './models/activity-type.model';
 import { StudyFile } from './models/study-file.model';
 import { StudyMaterial } from './models/study-material.model';
 import { StudyMaterialService } from './services/study-material.service';
+import { StudyMaterialController } from './study-material.controller';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { StudyMaterialService } from './services/study-material.service';
   exports: [
     SequelizeModule,
     StudyMaterialService
-  ]
+  ],
+  controllers: [StudyMaterialController]
 })
 export class StudyMaterialModule {}

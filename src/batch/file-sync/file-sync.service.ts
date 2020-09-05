@@ -31,7 +31,7 @@ export class FileSyncService {
   }
 
   private async createAccounts() {
-    console.log("STARTING SYNC PUBLIC URLS - FAEBOOK");
+    console.log("STARTING SYNC PUBLIC URLS - FACEBOOK");
     await this.createPublicUrls();
     console.log("STARTING SYNC ACCOUNTS")
     const limit = 100;
@@ -79,8 +79,12 @@ export class FileSyncService {
         platformId: FacebookService.PLATFORM,
         fileId: file.id
       }
+
+      const url = file.getPrivateUrl() ?
+        `${process.env.SERVER_URL}/${file.getPrivateUrl()}` : file.publicUrl;
+
       return this.facebookService
-        .getAttachmentId({ fileType, url: file.publicUrl })
+        .getAttachmentId({ fileType, url })
         .then(v => v.attachmentId)
         .then(reUtilizationCode => this.fileAccountService.create({...options, reUtilizationCode }))
         .catch(console.error);

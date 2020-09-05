@@ -13,6 +13,12 @@ export class FindFileArgs extends ParanoidArgs {
   @Length(0, 255)
   @Field({ nullable: true })
   public filesystemKey?: string;
+
+  @IsOptional()
+  @Length(64, 64)
+  @IsString()
+  @Field({ nullable: true })
+  public contentSha256?: string;
 }
 
 @ArgsType()
@@ -49,7 +55,7 @@ export class CreateFileDto {
   public contentSha256: string;
 
   @IsOptional()
-  @Length(1, 255)
+  @Length(0, 255)
   @Field({ nullable: true })
   public contentType?: string;
 
@@ -59,6 +65,11 @@ export class CreateFileDto {
   @Min(1)
   @Field(type => Int)
   public sizeInBytes: number;
+
+  @IsOptional()
+  @Length(0, 64)
+  @Field({ nullable: true })
+  public name?: string;
 }
 
 @InputType()

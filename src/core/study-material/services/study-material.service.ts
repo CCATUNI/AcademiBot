@@ -9,6 +9,8 @@ import {
 } from '../dto/study-material.dto';
 import { ActivityType } from '../models/activity-type.model';
 import { StudyFile } from '../models/study-file.model';
+import { File } from '../../file/models/file.model';
+import { FileAccount } from '../../file/models/file-account.model';
 
 @Injectable()
 export class StudyMaterialService {
@@ -51,4 +53,27 @@ export class StudyMaterialService {
   async create(createDto: CreateStudyMaterialDto) {
     return this.repository.create(createDto);
   }
+
+  createMaterialFinder(platformId: string) {
+    return (findArgs: FindStudyMaterialArgs) => {
+      delete findArgs.paranoid;
+      return this.repository.findOne({
+        where: {...findArgs},
+        include: [
+          {
+            model: StudyFile,
+            required: true,
+            include: [
+              {
+                model: File,
+                required: true,
+                include: [{model: FileAccount, where: {platformId}}]
+              }
+            ]
+          }
+        ]
+      })
+    }
+  }
+
 }

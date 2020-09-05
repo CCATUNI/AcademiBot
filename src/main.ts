@@ -17,6 +17,6 @@ async function bootstrap() {
   app.use(morgan("tiny"));
   await app.listen(configService.port);
   console.log(`Running in ${await app.getUrl()} and listening at port ${configService.port}`);
-
+  process.env.SERVER_URL = await app.getUrl();
 }
 bootstrap();

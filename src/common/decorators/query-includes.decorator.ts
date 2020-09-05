@@ -6,16 +6,13 @@ import { FieldNode } from 'graphql/language/ast';
 export const QueryIncludes = createParamDecorator((data: string[], opts: ExecutionContext) => {
   const args = opts.getArgs<[any, ArgsOptions, Request, GraphQLResolveInfo]>()
   const info = args[3];
-  return data.map(v => {
-    let includes = false;
-    info.fieldNodes.forEach(v2 => {
-      if (includes) return;
-      v2.selectionSet.selections.forEach(v3 => {
-        if (includes) return;
-        if ((v3 as FieldNode).name.value === v) includes = true;
-
-      })
-    });
-    return includes;
-  });
+  const names = info.fieldNodes.map(findNamesRecursive).flat();
+  return data.map(v => names.includes(v));
 })
+
+function findNamesRecursive(node: FieldNode): string[] {
+  if (!node.selectionSet) {
+    return [node.name.value];
+  }
+  return [node.name.value].concat(...node.selectionSet.selections.map(findNamesRecursive));
+}

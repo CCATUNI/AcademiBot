@@ -2,6 +2,7 @@ import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize
 import { File } from '../../file/models/file.model';
 import { StudyMaterial } from './study-material.model';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { BelongsToGetAssociationMixin } from 'sequelize';
 
 @ObjectType()
 @Table({
@@ -43,8 +44,11 @@ export class StudyFile extends Model<StudyFile> {
   @BelongsTo(() => StudyMaterial)
   public studyMaterial: StudyMaterial;
 
+  @Field(type => File)
   @BelongsTo(() => File)
   public file: File;
+
+  public getFile: BelongsToGetAssociationMixin<File>;
 
   public deletedAt?: Date;
 }

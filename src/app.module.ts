@@ -10,6 +10,7 @@ import { ConversationModule } from './conversation/conversation.module';
 import { FilesystemModule } from './filesystem/filesystem.module';
 import { FacebookModule } from './facebook/facebook.module';
 import { BatchModule } from './batch/batch.module';
+import { NotificationModule } from './notification/notification.module';
 import appConfig from './config/app.config';
 
 
@@ -33,6 +34,7 @@ import appConfig from './config/app.config';
     FilesystemModule,
     FacebookModule,
     BatchModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
