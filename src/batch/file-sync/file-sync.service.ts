@@ -75,23 +75,38 @@ export class FileSyncService {
   private async populateAccounts(file: File) {
     const fbAccount = file.accounts
       .find(v => v.platformId === FacebookService.PLATFORM);
+    const url = file.getPrivateUrl() ?
+      `${this.appConfiguration.server}/file/${file.getPrivateUrl()}` : file.publicUrl;
+    const fileType = FacebookService
+      .determineAttachmentType(file.contentType);
+
     if (!fbAccount) {
-      const fileType = FacebookService
-        .determineAttachmentType(file.contentType);
+
       const options = {
         fileType,
         platformId: FacebookService.PLATFORM,
         fileId: file.id
       }
 
-      const url = file.getPrivateUrl() ?
-        `${this.appConfiguration.server}/file/${file.getPrivateUrl()}` : file.publicUrl;
 
       return this.facebookService
         .getAttachmentId({ fileType, url })
         .then(v => v.attachmentId)
         .then(reUtilizationCode => this.fileAccountService.create({...options, reUtilizationCode }))
         .catch(console.error);
+    }
+    else {
+      if (!fbAccount.reUtilizationCode) {
+        const options = {
+          platformId: FacebookService.PLATFORM,
+          fileId: file.id
+        }
+        return  this.facebookService
+          .getAttachmentId({ fileType, url })
+          .then(v => v.attachmentId)
+          .then(reUtilizationCode => this.fileAccountService.update({...options, reUtilizationCode }, options))
+          .catch(console.error);
+      }
     }
   }
 
