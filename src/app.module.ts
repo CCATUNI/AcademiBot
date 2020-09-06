@@ -5,12 +5,8 @@ import * as Joi from '@hapi/joi';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { CoreModule } from './core/core.module';
-import { GraphqlModule } from './graphql/graphql.module';
-import { ConversationModule } from './conversation/conversation.module';
 import { FilesystemModule } from './filesystem/filesystem.module';
-import { FacebookModule } from './facebook/facebook.module';
-import { BatchModule } from './batch/batch.module';
-import { NotificationModule } from './notification/notification.module';
+import { MicroservicesModule } from './microservices.module';
 import appConfig from './config/app.config';
 
 
@@ -29,12 +25,8 @@ import appConfig from './config/app.config';
     }),
     DatabaseModule,
     CoreModule,
-    GraphqlModule,
-    ConversationModule,
     FilesystemModule,
-    FacebookModule,
-    BatchModule,
-    NotificationModule,
+    MicroservicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
