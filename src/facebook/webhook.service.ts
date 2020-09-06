@@ -313,7 +313,7 @@ export class WebhookService {
           const account = v.file.accounts
             .find(a => a.platformId === FacebookService.PLATFORM);
           const url = v.file.getPrivateUrl() ?
-            `${this.server}/${v.file.getPrivateUrl()}` : v.file.publicUrl;
+            `${this.server}/file/${v.file.getPrivateUrl()}` : v.file.publicUrl;
           return {
             fileType: account.fileType,
             url,

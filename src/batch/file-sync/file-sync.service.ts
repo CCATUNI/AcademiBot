@@ -85,7 +85,7 @@ export class FileSyncService {
       }
 
       const url = file.getPrivateUrl() ?
-        `${this.appConfiguration.server}/${file.getPrivateUrl()}` : file.publicUrl;
+        `${this.appConfiguration.server}/file/${file.getPrivateUrl()}` : file.publicUrl;
 
       return this.facebookService
         .getAttachmentId({ fileType, url })
