@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { FileService } from '../../core/file/services/file.service';
 import { FacebookService } from '../../facebook/facebook.service';
 import { FileAccount } from '../../core/file/models/file-account.model';
@@ -7,6 +7,8 @@ import { FilesystemService } from '../../filesystem/filesystem.service';
 import { File } from '../../core/file/models/file.model';
 import * as cron from 'node-cron';
 import { Op } from 'sequelize';
+import appConfig from '../../config/app.config';
+import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class FileSyncService {
@@ -15,7 +17,9 @@ export class FileSyncService {
     private fileService: FileService,
     private fileAccountService: FileAccountService,
     private facebookService: FacebookService,
-    private filesystemService: FilesystemService
+    private filesystemService: FilesystemService,
+    @Inject(appConfig.KEY)
+    private readonly appConfiguration: ConfigType<typeof appConfig>
   ) {
     this.running = false;
   }
@@ -81,7 +85,7 @@ export class FileSyncService {
       }
 
       const url = file.getPrivateUrl() ?
-        `${process.env.SERVER_URL}/${file.getPrivateUrl()}` : file.publicUrl;
+        `${this.appConfiguration.server}/${file.getPrivateUrl()}` : file.publicUrl;
 
       return this.facebookService
         .getAttachmentId({ fileType, url })

@@ -59,6 +59,7 @@ export class WebhookService {
   private readonly studyFileFinder: (findArgs: FindStudyMaterialArgs) => Promise<StudyMaterial>;
   private welcome?: FileAccount;
   public platform?: Platform;
+  private readonly server: string;
   constructor(
     private facebookService: FacebookService,
     private userAccountService: UserAccountService,
@@ -80,6 +81,7 @@ export class WebhookService {
     this.userAccountFinder = this.userAccountService.createAccountFinder(FacebookService.PLATFORM);
     this.fileAccountFinder = this.fileAccountService.createAccountFinder(FacebookService.PLATFORM);
     this.studyFileFinder = this.studyMaterialService.createMaterialFinder(FacebookService.PLATFORM);
+    this.server = this.appConfiguration.server;
   }
 
   async setup() {
@@ -311,7 +313,7 @@ export class WebhookService {
           const account = v.file.accounts
             .find(a => a.platformId === FacebookService.PLATFORM);
           const url = v.file.getPrivateUrl() ?
-            `${process.env.SERVER_URL}/${v.file.getPrivateUrl()}` : v.file.publicUrl;
+            `${this.server}/${v.file.getPrivateUrl()}` : v.file.publicUrl;
           return {
             fileType: account.fileType,
             url,
@@ -323,7 +325,7 @@ export class WebhookService {
           const result = results[i];
           const values = {
             userId: user.id,
-            fileId:studyFiles[i].id,
+            fileId: studyFiles[i].file.id,
             error: undefined
           };
           if (result instanceof Error) {
