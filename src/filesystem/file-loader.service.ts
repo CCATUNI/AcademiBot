@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { FilesystemService } from './filesystem.service';
 import * as crypto from 'crypto';
 import * as rp from 'request-promise';
 import { Response } from 'request';
@@ -9,9 +8,7 @@ import * as fs from 'fs';
 
 @Injectable()
 export class FileLoaderService {
-  constructor(
-    private filesystemService: FilesystemService
-  ) {}
+  constructor() {}
 
   // NOTE: Watch out for unwanted calls as it may upload duplicated files
   // Possible solution, upload to database to check if the sha exists before
@@ -25,17 +22,13 @@ export class FileLoaderService {
     const extension = fileType ? fileType.ext : null;
     const key = prefix + contentSha256;
     const sizeInBytes = buffer.length;
-    await this.filesystemService.createObject(key, {
-      Body: buffer,
-      ContentType: contentType,
-      ContentLength: sizeInBytes
-    });
     return {
       contentSha256,
       sizeInBytes,
       filesystemKey: key,
       extension,
-      contentType
+      contentType,
+      buffer
     }
   }
 

@@ -8,10 +8,13 @@ import { CoreModule } from './core/core.module';
 import { FilesystemModule } from './filesystem/filesystem.module';
 import { MicroservicesModule } from './microservices.module';
 import appConfig from './config/app.config';
+import { microserviceOptions } from './microservices.constants';
+import { UploadsModule } from './uploads/uploads.module';
 
 
 @Module({
   imports: [
+    MicroservicesModule.forRoot(microserviceOptions),
     ConfigModule.forRoot({
       load: [appConfig],
       isGlobal: true,
@@ -26,7 +29,7 @@ import appConfig from './config/app.config';
     DatabaseModule,
     CoreModule,
     FilesystemModule,
-    MicroservicesModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

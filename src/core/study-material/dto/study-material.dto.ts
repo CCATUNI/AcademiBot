@@ -11,7 +11,6 @@ export class FindStudyMaterialArgs extends ParanoidArgs {
 
 @InputType()
 export class CreateStudyMaterialDto {
-
   @Field()
   @Length(1, 32)
   public activityTypeId: string;

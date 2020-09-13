@@ -23,7 +23,15 @@ export class StudyMaterialService {
   }
 
   findOne(findArgs: any) {
-    return this.repository.findOne({ where: { ...findArgs } });
+    return this.repository.findOne({ where: { ...findArgs }, rejectOnEmpty: true });
+  }
+
+  async findOneOrCreate(findOrCreateArgs: CreateStudyMaterialDto) {
+    try {
+      return await this.repository.findOne({ where: {...findOrCreateArgs}, rejectOnEmpty: true });
+    } catch {
+      return this.repository.create(findOrCreateArgs);
+    }
   }
 
   findAll(findArgs: FindStudyMaterialsArgs, attributes?: string[]) {

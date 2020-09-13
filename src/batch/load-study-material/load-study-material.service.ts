@@ -4,6 +4,7 @@ import { FileService } from '../../core/file/services/file.service';
 import { parse } from '@fast-csv/parse';
 import { StudyMaterialService } from '../../core/study-material/services/study-material.service';
 import * as fs from 'fs';
+import { FilesystemService } from '../../filesystem/filesystem.service';
 
 type RawRow = {
   courseId: string;
@@ -20,13 +21,22 @@ type RawRow = {
 export class LoadStudyMaterialService {
   constructor(
     private fileService: FileService,
+    private filesystemService: FilesystemService,
     private fileLoaderService: FileLoaderService,
     private studyMaterialService: StudyMaterialService
   ) {}
 
   async loadOne(url: string, prefix: string) {
     const createFileDto = await this.fileLoaderService.loadFromUrl(url, prefix);
-    return this.fileService.create(createFileDto);
+    const { buffer } = createFileDto;
+    delete createFileDto.buffer;
+    const response = await this.fileService.create(createFileDto);
+    await this.filesystemService.createObject(createFileDto.filesystemKey, {
+      Body: buffer,
+      ContentType: createFileDto.contentType,
+      ContentLength: createFileDto.sizeInBytes
+    });
+    return response;
   }
 
   async loadMany(route: string, prefix: string) {

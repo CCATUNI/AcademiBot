@@ -10,6 +10,7 @@ import { PlatformModule } from '../core/platform/platform.module';
 import { UniversityModule } from '../core/university/university.module';
 import { StudyMaterialModule } from '../core/study-material/study-material.module';
 import { FilesystemModule } from '../filesystem/filesystem.module';
+import { facebookConfigConstants } from './config/constants';
 
 @Module({
   imports: [
@@ -22,9 +23,9 @@ import { FilesystemModule } from '../filesystem/filesystem.module';
     StudyMaterialModule,
     FilesystemModule
   ],
-  controllers: [FacebookController],
-  providers: [FacebookService, WebhookProvider],
+  controllers: facebookConfigConstants.enableApi ? [FacebookController] : [],
+  providers: facebookConfigConstants.enableApi ?
+    [FacebookService, WebhookProvider] : [FacebookService],
   exports: [FacebookService]
 })
-
 export class FacebookModule {}

@@ -39,5 +39,14 @@ export class FileService {
     return this.repository.create(createDto);
   }
 
+  async findOrCreate(createDto: CreateFileDto) {
+    try {
+      return await this.repository
+        .findOne({ where: { contentSha256: createDto.contentSha256 }, rejectOnEmpty: true });
+    } catch {
+      return this.create(createDto);
+    }
+  }
+
 
 }

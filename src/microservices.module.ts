@@ -6,33 +6,18 @@ import { BatchModule } from './batch/batch.module';
 
 @Module({})
 export class MicroservicesModule {
-  static forRoot(): DynamicModule {
-    if (!process.env.MICROSERVICES_ENABLE) {
-      return {
-        module: MicroservicesModule,
-        imports: [
-          GraphqlModule,
-          ConversationModule,
-          FacebookModule,
-          BatchModule
-        ]
-      }
-    }
+  static forRoot(options: { [p: string]: boolean }): DynamicModule {
     const out: DynamicModule = {
       module: MicroservicesModule,
-      imports: [],
-      exports: []
+      imports: [
+        FacebookModule,
+        ConversationModule
+      ]
     }
-    if (process.env.MICROSERVICES_GRAPHQL) {
+    if (options.graphqlApi) {
       out.imports.push(GraphqlModule)
     }
-    if (process.env.MICROSERVICES_CONVERSATION) {
-      out.imports.push(ConversationModule)
-    }
-    if (process.env.MICROSERVICES_FACEBOOK) {
-      out.imports.push(FacebookModule)
-    }
-    if (process.env.MICROSERVICES_BATCH) {
+    if (options.batch) {
       out.imports.push(BatchModule)
     }
     out.exports = out.imports;

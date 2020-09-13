@@ -92,6 +92,7 @@ export class FilesystemService {
       Body: parameters.Body,
       Bucket: this.bucket,
       Key: key,
+      ContentType: parameters.ContentType
     };
     const object: S3.PutObjectOutput = await this.s3
       .putObject(params)
