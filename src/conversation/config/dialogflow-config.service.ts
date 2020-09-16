@@ -17,7 +17,9 @@ export class DialogflowConfigService {
       console.log('DIALOGFLOW CONFIGURATION');
       console.table({...this.conversationConfig, json: JSON.stringify(json).substr(0, 30)+'...'});
     }
-    fs.writeFileSync(path, JSON.stringify(json));
+    if (JSON.stringify(json) != '{}') {
+      fs.writeFileSync(path, JSON.stringify(json));
+    }
 
   }
 
