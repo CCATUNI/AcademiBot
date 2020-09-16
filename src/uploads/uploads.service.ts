@@ -15,8 +15,8 @@ export class UploadsService {
     private filesystemService: FilesystemService
   ) {}
 
-  async loadOne(buffer: Buffer, createStudyMaterialsDto: UploadFileDto[]) {
-    const createFileDto = await this.fileLoaderService.loadOne(buffer, uploadConstants.folder);
+  async loadOne(buffer: Buffer, createStudyMaterialsDto: UploadFileDto[], prefix = uploadConstants.folder) {
+    const createFileDto = await this.fileLoaderService.loadOne(buffer, prefix);
     delete createFileDto.buffer;
     const file = await this.fileService.findOrCreate(createFileDto);
     await this.filesystemService.createObject(createFileDto.filesystemKey, {

@@ -13,14 +13,14 @@ export class UploadsController {
 
   @Post('file')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: { data: string }) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: { data: string, prefix: string }) {
     const createFilesDto = plainToClass(UploadFileBodyDto, { data: JSON.parse(body.data) });
     const errors = await validate(createFilesDto);
     if (errors.length) {
       console.log(errors.map(v => v.toString()));
       throw new BadRequestException(errors.map(v => v.toString()));
     }
-    return this.uploadsService.loadOne(file.buffer, createFilesDto.data);
+    return this.uploadsService.loadOne(file.buffer, createFilesDto.data, body.prefix);
   }
 
   @Post('assign')

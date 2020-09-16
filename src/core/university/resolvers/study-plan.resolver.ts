@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { InjectModel } from '@nestjs/sequelize';
 import { StudyPlan } from '../models/study-plan.model';
 import { CREATE_MUTATION_INPUT, UPDATE_MUTATION_INPUT } from '../../../config/constants';
@@ -60,6 +60,13 @@ export class StudyPlanResolver {
     const options = {where:{...findArgs}, returning: true, limit: 1};
     const [, [data]] = await this.studyPlanRepository.update(updateDto, options);
     return data;
+  }
+
+  @Mutation(returns => StudyPlan, { nullable: true })
+  async deleteStudyPlan(@Args() findArgs: FindStudyPlanArgs) {
+    const studyPlan = await this.studyPlan(findArgs, []);
+    await studyPlan.destroy();
+    return studyPlan;
   }
 
 }

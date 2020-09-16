@@ -24,7 +24,7 @@ export class CreateStudyMaterialDto {
   public universityId: string;
 
   @Field()
-  @Length(1, 8)
+  @Length(1, 72)
   public name: string;
 }
 

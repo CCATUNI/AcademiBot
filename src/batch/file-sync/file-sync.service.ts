@@ -79,20 +79,21 @@ export class FileSyncService {
       `${this.appConfiguration.server}/file/${file.getPrivateUrl()}` : file.publicUrl;
     const fileType = FacebookService
       .determineAttachmentType(file.contentType);
+    let reUtilizationCode: string;
 
     if (!fbAccount) {
-
       const options = {
         fileType,
         platformId: FacebookService.PLATFORM,
         fileId: file.id
       }
-
-
-      return this.facebookService
-        .getAttachmentId({ fileType, url })
-        .then(v => v.attachmentId)
-        .then(reUtilizationCode => this.fileAccountService.create({...options, reUtilizationCode }))
+      try {
+        const { attachmentId } = await this.facebookService.getAttachmentId({ fileType, url });
+        reUtilizationCode = attachmentId;
+      } catch (e) {
+        console.error(e.error);
+      }
+      return this.fileAccountService.create({...options, reUtilizationCode })
         .catch(console.error);
     }
     else {
@@ -101,10 +102,13 @@ export class FileSyncService {
           platformId: FacebookService.PLATFORM,
           fileId: file.id
         }
-        return  this.facebookService
-          .getAttachmentId({ fileType, url })
-          .then(v => v.attachmentId)
-          .then(reUtilizationCode => this.fileAccountService.update({...options, reUtilizationCode }, options))
+        try {
+          const { attachmentId } = await this.facebookService.getAttachmentId({ fileType, url });
+          reUtilizationCode = attachmentId;
+        } catch (e) {
+          console.error(e.error);
+        }
+        return this.fileAccountService.update({...options, reUtilizationCode }, options)
           .catch(console.error);
       }
     }

@@ -13,7 +13,11 @@ export class FindCourseArgs {
 }
 
 @ArgsType()
-export class FindCoursesArgs extends PartialType(FindCourseArgs) {}
+export class FindCoursesArgs extends PartialType(FindCourseArgs) {
+  @Field({ nullable: true })
+  @IsOptional()
+  public title?: string;
+}
 
 @InputType()
 export class CreateCourseDto {

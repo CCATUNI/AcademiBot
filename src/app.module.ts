@@ -22,7 +22,7 @@ import { UploadsModule } from './uploads/uploads.module';
         NODE_ENV: Joi.string().case('lower')
           .valid('development', 'production', 'testing')
           .default('development'),
-        PORT: Joi.number().default(3000),
+        PORT: Joi.number().default(80),
         TZ: Joi.string().default('America/Bogota')
       }),
     }),

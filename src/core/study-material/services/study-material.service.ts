@@ -79,7 +79,8 @@ export class StudyMaterialService {
               }
             ]
           }
-        ]
+        ],
+        rejectOnEmpty: true
       })
     }
   }

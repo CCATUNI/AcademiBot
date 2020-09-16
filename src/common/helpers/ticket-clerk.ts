@@ -18,7 +18,7 @@ export async function createTicket(createTicketDto: { quantity: number, id: stri
   const hour = date.toLocaleString('es-PE', options) + ':' + s;
   let amt = createTicketDto.quantity.toString();
   amt = amt.length === 3 ? amt : amt.length === 2 ? '0' + amt : '00' + amt;
-  const image = await Jimp.read('./assets/ticket.png');
+  const image = await Jimp.read('./public/ticket.png');
   const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
   const font2 = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
   const idString = `U${createTicketDto.id}`;

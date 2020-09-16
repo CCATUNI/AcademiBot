@@ -195,7 +195,7 @@ export class WebhookService {
               studyPlans.map(v => v.course.title)
             ];
             for (const strings of stringMatrix) {
-              let indexes = SorensenFilter(ctx.message.text, strings);
+              const indexes = SorensenFilter(ctx.message.text, strings);
               if (indexes.length) {
                 if (indexes.length === 1) {
                   const i = indexes[0];

@@ -3,15 +3,23 @@ import { GraphQLResolveInfo } from 'graphql';
 import { ArgsOptions } from '@nestjs/graphql';
 import { Model } from 'sequelize-typescript';
 import { intersect } from '../helpers/intersect';
+import { FieldNode } from 'graphql/language/ast';
 
 // Gives all the values queried + the primary keys of the model (in the case of eager loading needed)
 export const QueryFields = createParamDecorator((data: typeof Model, opts: ExecutionContext) => {
   const args = opts.getArgs<[any, ArgsOptions, Request, GraphQLResolveInfo]>()
   const info = args[3];
-  const fields: {[field: string]: string[]} = {};
-  info.fieldNodes.forEach(v => {
-    fields[v.name.value] = v.selectionSet.selections.map(v => (v as any).name.value) as string[];
-  })
-  const result = intersect(fields[info.fieldName], Reflect.ownKeys(data.prototype));
-  return Array.from((new Set(result.concat(data.primaryKeyAttributes))).values());
+  const names = info.fieldNodes.map(findNamesRecursive).flat();
+  const modelAttributes = Object.getOwnPropertyNames(data.rawAttributes);
+  const intersection = names.filter(v => modelAttributes.includes(v));
+  return Array.from(
+    (new Set(intersection.concat(data.primaryKeyAttributes)).values())
+  );
 })
+
+function findNamesRecursive(node: FieldNode): string[] {
+  if (!node.selectionSet) {
+    return [node.name.value];
+  }
+  return [node.name.value].concat(...node.selectionSet.selections.map(findNamesRecursive));
+}

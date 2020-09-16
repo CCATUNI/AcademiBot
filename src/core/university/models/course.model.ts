@@ -1,8 +1,9 @@
-import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
 import { University } from './university.model';
 import { StudyMaterial } from '../../study-material/models/study-material.model';
 import { HasManyGetAssociationsMixin } from 'sequelize';
 import { Field, ObjectType } from '@nestjs/graphql';
+import { StudyPlan } from './study-plan.model';
 
 @ObjectType()
 @Table({
@@ -43,6 +44,11 @@ export class Course extends Model<Course> {
   public details?: string;
 
   public getStudyMaterials!: HasManyGetAssociationsMixin<StudyMaterial>;
+
+  @HasMany(() => StudyPlan)
+  public studyPlans: StudyPlan[];
+
+  public getStudyPlans: HasManyGetAssociationsMixin<StudyPlan>;
 
   @Field({ nullable: true })
   public deletedAt?: Date;
