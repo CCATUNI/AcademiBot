@@ -34,7 +34,7 @@ export class UserAccountSyncService {
             .getPublicInfo(v.identifierInPlatform);
           await v.update({ publicInformation });
         } catch (e) {
-          console.log(`An error ocurred on record ${v.identifierInPlatform} in platform ${FacebookService.PLATFORM}`);
+          console.log(`An error occurred on record ${v.identifierInPlatform} in platform ${FacebookService.PLATFORM}`);
         }
       }))
     }

@@ -12,16 +12,25 @@ RUN /usr/local/bin/node-prune
 RUN npm prune --production
 
 FROM node:10-alpine
+RUN apk --update add postgresql-client
 WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/node_modules ./node_modules/
 COPY --from=builder /usr/src/app/dist ./dist/
 COPY --from=builder /usr/src/app/package.json ./
 COPY ./public ./public/
-RUN apk --update add postgresql-client
 RUN mkdir ./tmp
 EXPOSE 80
+ENV NODE_ENV=production
+ENV MICROSERVICES_BATCH=0
+ENV MICROSERVICES_FACEBOOKAPI=1
+ENV MICROSERVICES_GRAPHQL=0
+ENV GOOGLE_DIALOGFLOW_LANGUAGE=es
+ENV BATCH_DATABASE_BACKUP="0 0 1 * * *"
+ENV BATCH_FILE_SYNC="0 0 4 * * *"
+ENV BATCH_SYNC_ACCOUNTS="0 0 2 * * *"
+ENV PORT=80
 ENV DB_DIALECT=postgres
 ENV DB_PORT=5432
 ENV DB_NAME=academibot
-ENV NODE_ENV=production
+ENV UPLOAD_FOLDER="files/"
 CMD ["npm", "run", "start:prod"]
