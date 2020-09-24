@@ -17,7 +17,6 @@ export class FilesystemService {
   async listObjectsUnder(
     prefix: string,
     continuationToken?: string,
-    previousResult: S3.ObjectList = [],
   ): Promise<S3.ObjectList> {
     const params: S3.ListObjectsV2Request = {
       Bucket: this.bucket,
@@ -26,16 +25,10 @@ export class FilesystemService {
       ContinuationToken: continuationToken || undefined,
     };
     const response = await this.s3.listObjectsV2(params).promise();
-    const result: S3.ObjectList = [
-      ...previousResult,
-      ...response.Contents,
-    ].filter(value => value.Size > 0);
+    const result = response.Contents.filter(value => value.Size > 0);
     if (response.IsTruncated) {
-      return await this.listObjectsUnder(
-        prefix,
-        response.NextContinuationToken,
-        result,
-      );
+      return result
+        .concat(await this.listObjectsUnder(prefix, response.NextContinuationToken));
     }
     return result;
   }
@@ -43,7 +36,6 @@ export class FilesystemService {
   async listObjectsDirectlyUnder(
     prefix: string,
     continuationToken?: string,
-    previousResult: S3.ObjectList = [],
   ): Promise<S3.ObjectList> {
     const params: S3.ListObjectsV2Request = {
       Bucket: this.bucket,
@@ -53,16 +45,13 @@ export class FilesystemService {
       Delimiter: '/',
     };
     const response = await this.s3.listObjectsV2(params).promise();
-    const result: S3.ObjectList = [
-      ...previousResult,
-      ...response.Contents,
-    ].filter(value => value.Size > 0);
+    const result = response.Contents.filter(value => value.Size > 0);
     if (response.IsTruncated) {
-      return await this.listObjectsDirectlyUnder(
-        prefix,
-        response.NextContinuationToken,
-        result,
-      );
+      return result
+        .concat(await this.listObjectsDirectlyUnder(
+          prefix,
+          response.NextContinuationToken
+        ))
     }
     return result;
   }
@@ -134,12 +123,11 @@ export class FilesystemService {
   async renameObject(key: string, newName: string, justName: boolean = true) {
     let newKey: string;
     if (justName) {
-      const lista = key.split('/');
-      const fileName = lista[lista.length - 1];
-      lista.pop();
+      const parts = key.split('/');
+      const fileName = parts.pop();
       const extension = fileName.substr(fileName.lastIndexOf('.'));
-      if (lista.length > 0) {
-        newKey = `${lista.join('/')}/${newName}${extension}`;
+      if (parts.length > 0) {
+        newKey = `${parts.join('/')}/${newName}${extension}`;
       } else {
         newKey = `${newName}${extension}`;
       }

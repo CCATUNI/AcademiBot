@@ -27,25 +27,17 @@ export async function createTicket(createTicketDto: { quantity: number, id: stri
   let description2 =
     'de ' + amt + ' recursos de estudio, muchas gracias por su apoyo.';
   let description3 = uuid;
-  const p = Path.join('./public/images', uuid + '.png');
-  let description4 = hour;
-  return new Promise<{ name: string; path: string }>((resolve, reject) => {
-    image
-      .print(font, 230, 375, description1)
-      .print(font, 220, 415, description2)
-      .print(font2, 200, 500, description3)
-      .print(font2, 900, 500, description4)
-      .rotate(90)
-      .print(font, 95, 105, idString)
-      .rotate(180)
-      .print(font, 95, 105, idString)
-      .rotate(90)
-      .write(p, err => {
-        if (err) return reject(err);
-        return resolve({
-          name: `${uuid}.png`,
-          path: p,
-        });
-      });
-  });
+  const p = Path.resolve(process.cwd(), `./tmp/${uuid}.png`);
+  await image
+    .print(font, 230, 375, description1)
+    .print(font, 220, 415, description2)
+    .print(font2, 200, 500, description3)
+    .print(font2, 900, 500, hour)
+    .rotate(90)
+    .print(font, 95, 105, idString)
+    .rotate(180)
+    .print(font, 95, 105, idString)
+    .rotate(90)
+    .writeAsync(p);
+  return p;
 }

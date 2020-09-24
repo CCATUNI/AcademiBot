@@ -52,6 +52,14 @@ export class StudyMaterial extends Model<StudyMaterial> {
 
   @Field()
   @Column({
+    type: DataType.SMALLINT({ unsigned: true }),
+    allowNull: false,
+    defaultValue: 0
+  })
+  public requests: number;
+
+  @Field()
+  @Column({
     type: DataType.STRING({ length: 72 }),
     allowNull: false
   })

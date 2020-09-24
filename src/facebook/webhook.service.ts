@@ -137,7 +137,7 @@ export class WebhookService {
       id: account.id
     };
     const id = account.identifierInPlatform;
-    const { path } = await createTicket(args);
+    const path = await createTicket(args);
     const createFileDto = await this.fileLoaderService
       .loadFromFile(path, `users/${account.userId}/tickets/`);
     const file = await this.fileService.create(createFileDto);
@@ -307,6 +307,7 @@ export class WebhookService {
         const studyMaterialId = parameters.id as string;
         const material = await this
           .studyFileFinder({ id: studyMaterialId });
+        await material.increment('requests');
         const studyFiles = material.files
           .filter(v => v.file && v.file.accounts.find(a => a.platformId === FacebookService.PLATFORM));
         const attachments = studyFiles.map(v => {

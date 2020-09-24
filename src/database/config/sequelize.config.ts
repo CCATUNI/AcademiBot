@@ -1,11 +1,11 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('database', () => ({
-  dialect: process.env.DATABASE_DIALECT,
-  port: +process.env.DATABASE_PORT,
-  host: process.env.DATABASE_HOST,
-  database: process.env.DATABASE_NAME,
-  username: process.env.DATABASE_USERNAME,
-  password: process.env.DATABASE_PASSWORD,
-  timezone: process.env.DATABASE_TIMEZONE
+  dialect: process.env.DB_DIALECT,
+  port: +process.env.DB_PORT,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  timezone: process.env.DB_TIMEZONE
 }));

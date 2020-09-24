@@ -12,14 +12,15 @@ export class DialogflowConfigService {
     @Inject(appConfig.KEY)
     private readonly appConfiguration: ConfigType<typeof appConfig>
   ) {
-    const { path, json } = this.conversationConfig;
+    let { path, json } = this.conversationConfig;
+    if (JSON.stringify(json) != '{}') {
+      fs.writeFileSync(path, JSON.stringify(json));
+    }
     if (!this.appConfiguration.production) {
       console.log('DIALOGFLOW CONFIGURATION');
       console.table({...this.conversationConfig, json: JSON.stringify(json).substr(0, 30)+'...'});
     }
-    if (JSON.stringify(json) != '{}') {
-      fs.writeFileSync(path, JSON.stringify(json));
-    }
+
 
   }
 

@@ -5,6 +5,7 @@ import { FilesystemService } from '../../filesystem/filesystem.service';
 import * as child_process from 'child_process';
 import SequelizeConfig from '../../database/config/sequelize.config';
 import { ConfigType } from '@nestjs/config';
+import * as path from 'path';
 
 @Injectable()
 export class DatabaseBackupService {
@@ -27,29 +28,38 @@ export class DatabaseBackupService {
     this.running = true;
   }
 
-  private job() {
-    console.log("STARTING BACKUP");
+  private async job() {
     const spawn = child_process.spawn;
     const { username, password, port, host, database } = this.dbConfig;
-    const arg1 = `--dbname=postgresql://${username}:${password}@${host}:${port}/${database}`;
-    const dumpProcess = spawn('pg_dump', [arg1, '-Fc', '-n public', '-a'], { stdio: ['ignore', 'pipe', 'inherit']});
-    dumpProcess.on('exit', code => {
-      if (code !== 0) {
-        throw new Error("Exited with error " + code);
-      }
-    });
-    const now = (new Date()).toISOString();
-    const key = `backups/${now}.dmp`;
-    const backupPath = './tmp/'+now+'.dmp';
-    const write = fs.createWriteStream(backupPath);
-    dumpProcess.stdout.pipe(write);
-    write.on('finish', () => {
-      this.filesystemService.createObject(key, {
-        Body: fs.createReadStream(backupPath)
+    console.log(`STARTING BACKUP OF ${database} @ ${host}`);
+    for (const schema of ['public', 'audit']) {
+      const arg1 = `--dbname=postgresql://${username}:${password}@${host}:${port}/${database}`;
+      const args = [arg1, '-Fc', '-n', schema, '-a'];
+      const dumpProcess = spawn('pg_dump', args, { stdio: ['ignore', 'pipe', 'inherit']});
+      dumpProcess.on('exit', code => {
+        if (code !== 0) {
+          throw new Error("Exited with error " + code);
+        }
+      });
+      dumpProcess.on('error', code => {
+        console.error(code);
       })
-        .then(() => console.log("Successful backup of DB."))
-        .catch(console.error);
-    })
+      const now = (new Date()).toISOString();
+      const fileName = `${schema}_${now}.dmp`;
+      const key = `backups/${fileName}`;
+      const backupPath = path.resolve(process.env.PWD, `./tmp/${fileName}`);
+      const write = fs.createWriteStream(backupPath);
+      dumpProcess.stdout.pipe(write);
+      write.on('finish', () => {
+        this.filesystemService.createObject(key, {
+          Body: fs.createReadStream(backupPath)
+        })
+          .then(() => console.log(`Successful backup of schema ${schema}.`))
+          .catch(console.error);
+      });
+    }
+
+
   }
 
 }

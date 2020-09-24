@@ -17,7 +17,11 @@ COPY --from=builder /usr/src/app/node_modules ./node_modules/
 COPY --from=builder /usr/src/app/dist ./dist/
 COPY --from=builder /usr/src/app/package.json ./
 COPY ./public ./public/
+RUN apk --update add postgresql-client
+RUN mkdir ./tmp
 EXPOSE 80
-ENV DATABASE_DIALECT=postgres
+ENV DB_DIALECT=postgres
+ENV DB_PORT=5432
+ENV DB_NAME=academibot
 ENV NODE_ENV=production
 CMD ["npm", "run", "start:prod"]
