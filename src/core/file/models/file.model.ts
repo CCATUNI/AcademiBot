@@ -60,7 +60,10 @@ export class File extends Model<File> {
   public extension?: string;
 
   @Field({ nullable: true })
-  @Column(DataType.STRING({ length: 255 }))
+  @Column({
+    type: DataType.STRING({ length: 255 }),
+    defaultValue: 'text/plain'
+  })
   public contentType?: string;
 
   @Field(type => [FileAccount])
