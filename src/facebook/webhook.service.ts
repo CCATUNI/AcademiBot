@@ -397,6 +397,11 @@ export class WebhookService {
   }
 
   async receivePostback(id: string, postback: WebhookPostBack) {
+    if (!this.appConfiguration.production) {
+      console.log(postback);
+      console.log(postback.payload);
+    }
+
     this.facebookService.markSeen(id)
       .then(() => this.facebookService.typingOn(id))
       .catch(e => console.error(e.message));
@@ -434,6 +439,10 @@ export class WebhookService {
   }
 
   async receiveMessage(id: string, message: WebhookMessage) {
+    if (!this.appConfiguration.production) {
+      console.log(message);
+      console.log(message.quick_reply);
+    }
     this.facebookService.markSeen(id)
       .then(() => this.facebookService.typingOn(id))
       .catch(e => console.error(e.message));
