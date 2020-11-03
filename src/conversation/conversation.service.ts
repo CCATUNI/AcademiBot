@@ -4,7 +4,7 @@ import { DialogflowConfigService } from './config/dialogflow-config.service';
 
 export interface ConversationResponse {
   text: string;
-  payload: { [p: string]: string };
+  payload: { [p: string]: any };
   parameters: { [p: string]: string };
 }
 

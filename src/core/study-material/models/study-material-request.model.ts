@@ -1,17 +1,18 @@
-import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { Platform } from './platform.model';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import GraphQLJSON from 'graphql-type-json';
+import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
+import { Platform } from '../../platform/models/platform.model';
+import { StudyMaterial } from './study-material.model';
+import { User } from '../../user/models/user.model';
+
 
 @ObjectType()
 @Table({
-  tableName: 'file_submission',
+  tableName: 'study_material_request',
   underscored: true,
-  timestamps: true,
   updatedAt: false,
-  createdAt: 'submittedAt'
+  createdAt: 'requestedAt'
 })
-export class FileSubmission extends Model<FileSubmission> {
+export class StudyMaterialRequest extends Model<StudyMaterialRequest> {
   @Field(type => Int)
   @Column({
     type: DataType.INTEGER({ unsigned: true }),
@@ -22,6 +23,7 @@ export class FileSubmission extends Model<FileSubmission> {
   public id: number;
 
   @Field()
+  @ForeignKey(() => User)
   @Column({
     type: DataType.UUID,
     allowNull: false
@@ -36,20 +38,14 @@ export class FileSubmission extends Model<FileSubmission> {
   })
   public platformId: string;
 
-  @Field(type => Int)
+  @Field()
+  @ForeignKey(() => StudyMaterial)
   @Column({
-    type: DataType.INTEGER({ unsigned: true }),
+    type: DataType.UUID,
     allowNull: false
   })
-  public fileId: number;
-
-  @Field(type => GraphQLJSON, { nullable: true })
-  @Column(DataType.JSONB)
-  public error?: object;
-
-  @BelongsTo(() => Platform)
-  public platform: Platform;
+  public studyMaterialId: string;
 
   @Field(type => Date)
-  public submittedAt: Date;
+  public requestedAt: Date;
 }

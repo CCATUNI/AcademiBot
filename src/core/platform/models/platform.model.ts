@@ -1,9 +1,12 @@
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { UserAccount } from '../../user/models/user-account.model';
 import { Field, ObjectType } from '@nestjs/graphql';
-import { HasManyCreateAssociationMixin, HasManyGetAssociationsMixin } from 'sequelize';
-import { FileRequest } from './file-request.model';
-import { FileSubmission } from './file-submission.model';
+import {
+  HasManyCreateAssociationMixin,
+  HasManyCreateAssociationMixinOptions,
+  HasManyGetAssociationsMixin,
+} from 'sequelize';
+import { FileAction } from '../../file/models/file-action.model';
 
 @ObjectType()
 @Table({
@@ -32,15 +35,26 @@ export class Platform extends Model<Platform> {
   @Field(type => [UserAccount])
   public accounts: UserAccount[];
 
-  @HasMany(() => FileRequest)
-  public fileRequests: FileRequest[];
+  @HasMany(() => FileAction)
+  public fileActions: FileAction[];
 
-  @HasMany(() => FileSubmission)
-  public fileSubmissions: FileSubmission[];
+  public createFileAction: HasManyCreateAssociationMixin<FileAction>;
 
-  public createFileRequest: HasManyCreateAssociationMixin<FileRequest>;
+  public createFileRequest(
+    values?: {[p: string]: unknown},
+    options?: HasManyCreateAssociationMixinOptions
+  ) {
+    values.action = 'R';
+    return this.createFileAction(values, options);
+  }
 
-  public createFileSubmission: HasManyCreateAssociationMixin<FileSubmission>;
+  public createFileSubmission(
+    values?: {[p: string]: unknown},
+    options?: HasManyCreateAssociationMixinOptions
+  ) {
+    values.action = 'S';
+    return this.createFileAction(values, options);
+  }
 
   public getUserAccounts: HasManyGetAssociationsMixin<UserAccount>;
 

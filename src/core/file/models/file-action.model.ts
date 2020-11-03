@@ -1,17 +1,17 @@
-import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { Platform } from './platform.model';
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
+import { Platform } from '../../platform/models/platform.model';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import GraphQLJSON from 'graphql-type-json';
 
 @ObjectType()
 @Table({
-  tableName: 'file_request',
+  tableName: 'file_action',
   underscored: true,
   timestamps: true,
   updatedAt: false,
-  createdAt: 'requestedAt'
+  createdAt: 'performedAt'
 })
-export class FileRequest extends Model<FileRequest> {
+export class FileAction extends Model<FileAction> {
   @Field(type => Int)
   @Column({
     type: DataType.INTEGER({ unsigned: true }),
@@ -43,10 +43,23 @@ export class FileRequest extends Model<FileRequest> {
   })
   public fileId: number;
 
+  @Field()
+  @Column({
+    type: DataType.CHAR({ length: 1 }),
+    allowNull: false,
+    validate: {
+      isIn: [['R', 'S']]
+    }
+  })
+  public action: string;
+
   @Field(type => GraphQLJSON, { nullable: true })
   @Column(DataType.JSONB)
   public error?: object;
 
+  @BelongsTo(() => Platform)
+  public platform: Platform;
+
   @Field(type => Date)
-  public requestedAt: Date;
+  public performedAt: Date;
 }

@@ -1,15 +1,15 @@
 import { ArgsType, Field, Int } from '@nestjs/graphql';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Length } from 'class-validator';
 
 @ArgsType()
-export class FindFileSubmissionArgs {
+export class FindFileActionArgs {
   @IsNumber()
   @Field(type => Int)
   public id: number;
 }
 
 @ArgsType()
-export class FindFileSubmissionsArgs {
+export class FindFileActionsArgs {
   @IsOptional()
   @IsString()
   @Field({ nullable: true })
@@ -23,4 +23,9 @@ export class FindFileSubmissionsArgs {
   @IsOptional()
   @Field(type => Int, { nullable: true })
   public fileId?: number;
+
+  @Length(0, 1)
+  @IsOptional()
+  @Field({ nullable: true })
+  public action: string;
 }

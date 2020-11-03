@@ -2,7 +2,6 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GraphQLResolveInfo } from 'graphql';
 import { ArgsOptions } from '@nestjs/graphql';
 import { Model } from 'sequelize-typescript';
-import { intersect } from '../helpers/intersect';
 import { FieldNode } from 'graphql/language/ast';
 
 // Gives all the values queried + the primary keys of the model (in the case of eager loading needed)

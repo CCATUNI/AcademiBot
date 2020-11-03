@@ -77,7 +77,11 @@ export class User extends Model<User> {
   @ForeignKey(() => StudyPeriod)
   @Column({
     type: DataType.SMALLINT({ unsigned: true }),
-    set(this: User, v: number) {
+    set(this: User, v: number | string) {
+      v = parseInt(String(v)) as number;
+      if (isNaN(v)) {
+        v = null as number;
+      }
       this.courseId = null;
       this.setDataValue('studyPeriodId', v);
     }
@@ -125,7 +129,7 @@ export class User extends Model<User> {
   public getUserAccounts: HasManyGetAssociationsMixin<UserAccount>;
 
   public getCourse: BelongsToGetAssociationMixin<Course>;
-  
+
   public setCourse: BelongsToSetAssociationMixin<Course, string>;
 
   public setActivityType: BelongsToSetAssociationMixin<ActivityType, string>;

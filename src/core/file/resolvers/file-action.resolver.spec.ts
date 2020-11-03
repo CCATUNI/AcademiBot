@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FileRequestResolver } from './file-request.resolver';
+import { FileActionResolver } from './file-action.resolver';
 
-describe('FileRequestResolver', () => {
-  let resolver: FileRequestResolver;
+describe('FileActionResolver', () => {
+  let resolver: FileActionResolver;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [FileRequestResolver],
+      providers: [FileActionResolver],
     }).compile();
 
-    resolver = module.get<FileRequestResolver>(FileRequestResolver);
+    resolver = module.get<FileActionResolver>(FileActionResolver);
   });
 
   it('should be defined', () => {

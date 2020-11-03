@@ -260,8 +260,12 @@ export class WebhookService {
 
   private async executeCommand(ctx: PartialWebhookContext) {
     const { answer, account } = ctx;
-    const { payload, parameters } = answer;
+    const { payload } = answer;
     const command = payload.command;
+    let parameters = answer.parameters;
+    if (JSON.stringify(parameters) === "{}") {
+      parameters = payload.parameters;
+    }
     const user = account.user;
     const id = account.identifierInPlatform;
     // noinspection FallThroughInSwitchStatementJS
@@ -307,7 +311,10 @@ export class WebhookService {
         const studyMaterialId = parameters.id as string;
         const material = await this
           .studyFileFinder({ id: studyMaterialId });
-        await material.increment('requests');
+        await material.createRequest({
+          userId: user.id,
+          platformId: FacebookService.PLATFORM,
+        })
         const studyFiles = material.files
           .filter(v => v.file && v.file.accounts.find(a => a.platformId === FacebookService.PLATFORM));
         const attachments = studyFiles.map(v => {

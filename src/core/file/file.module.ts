@@ -8,12 +8,15 @@ import { FileService } from './services/file.service';
 import { FileAccountService } from './services/file-account.service';
 import { FileController } from './file.controller';
 import { FilesystemModule } from '../../filesystem/filesystem.module';
+import { FileAction } from './models/file-action.model';
+import { FileActionResolver } from './resolvers/file-action.resolver';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([
       File,
-      FileAccount
+      FileAccount,
+      FileAction,
     ]),
     FilesystemModule
   ],
@@ -21,9 +24,10 @@ import { FilesystemModule } from '../../filesystem/filesystem.module';
     FileResolver,
     FileAccountResolver,
     FileService,
-    FileAccountService
+    FileAccountService,
+    FileActionResolver,
   ],
-  exports: [SequelizeModule, FileService,FileAccountService],
+  exports: [SequelizeModule, FileService, FileAccountService],
   controllers: [FileController]
 })
 export class FileModule {}

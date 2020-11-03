@@ -6,6 +6,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { StudyFile } from './study-file.model';
 import { HasManyCreateAssociationMixin, HasManyGetAssociationsMixin } from 'sequelize';
 import { StudyPlan } from '../../university/models/study-plan.model';
+import { StudyMaterialRequest } from './study-material-request.model';
 
 @ObjectType()
 @Table({
@@ -75,6 +76,10 @@ export class StudyMaterial extends Model<StudyMaterial> {
   public getFiles: HasManyGetAssociationsMixin<StudyFile>;
 
   public createFile: HasManyCreateAssociationMixin<StudyFile>;
+
+  public getRequests: HasManyCreateAssociationMixin<StudyMaterialRequest>;
+
+  public createRequest: HasManyCreateAssociationMixin<StudyMaterialRequest>;
 
   @Field()
   public createdAt: Date;
