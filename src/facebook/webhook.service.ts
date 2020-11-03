@@ -476,6 +476,9 @@ export class WebhookService {
       if (!ctx.answer) {
         ctx.answer = await this.conversationService.processText(id, text);
       }
+      if (!this.appConfiguration.production) {
+        console.log(ctx.answer);
+      }
       await this.executeAnswer(ctx);
     } catch (e) {
       if (!this.appConfiguration.production) {
