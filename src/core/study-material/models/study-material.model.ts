@@ -79,7 +79,10 @@ export class StudyMaterial extends Model<StudyMaterial> {
 
   public getRequests: HasManyCreateAssociationMixin<StudyMaterialRequest>;
 
-  public createRequest: HasManyCreateAssociationMixin<StudyMaterialRequest>;
+  @HasMany(() => StudyMaterialRequest)
+  public studyMaterialRequests: StudyMaterialRequest[];
+
+  public createStudyMaterialRequest: HasManyCreateAssociationMixin<StudyMaterialRequest>;
 
   @Field()
   public createdAt: Date;

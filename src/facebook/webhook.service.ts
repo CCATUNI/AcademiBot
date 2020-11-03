@@ -311,7 +311,7 @@ export class WebhookService {
         const studyMaterialId = parameters.id as string;
         const material = await this
           .studyFileFinder({ id: studyMaterialId });
-        await material.createRequest({
+        await material.createStudyMaterialRequest({
           userId: user.id,
           platformId: FacebookService.PLATFORM,
         })
