@@ -8,6 +8,7 @@ import { StudyFile } from './models/study-file.model';
 import { StudyMaterial } from './models/study-material.model';
 import { StudyMaterialService } from './services/study-material.service';
 import { StudyMaterialController } from './study-material.controller';
+import { StudyMaterialRequest } from './models/study-material-request.model';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { StudyMaterialController } from './study-material.controller';
       ActivityType,
       StudyFile,
       StudyMaterial,
+      StudyMaterialRequest
     ])
   ],
   providers: [

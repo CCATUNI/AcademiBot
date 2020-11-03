@@ -77,7 +77,7 @@ export class StudyMaterial extends Model<StudyMaterial> {
 
   public createFile: HasManyCreateAssociationMixin<StudyFile>;
 
-  public getRequests: HasManyCreateAssociationMixin<StudyMaterialRequest>;
+  public getStudyMaterialRequests: HasManyCreateAssociationMixin<StudyMaterialRequest>;
 
   @HasMany(() => StudyMaterialRequest)
   public studyMaterialRequests: StudyMaterialRequest[];
