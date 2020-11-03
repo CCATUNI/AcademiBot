@@ -343,6 +343,7 @@ export class WebhookService {
             .catch(console.error);
         }
         ctx.ended = true;
+        await this.regularizeUser(ctx);
         return ;
       default:
         throw new Error("Not supported command " + command);
