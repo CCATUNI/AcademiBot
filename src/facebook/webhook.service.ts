@@ -263,7 +263,7 @@ export class WebhookService {
     const { payload } = answer;
     const command = payload.command;
     let parameters = answer.parameters;
-    if (JSON.stringify(parameters) === "{}") {
+    if (!parameters || JSON.stringify(parameters) === "{}") {
       parameters = payload.parameters;
     }
     const user = account.user;
