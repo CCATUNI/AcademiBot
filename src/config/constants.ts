@@ -17,7 +17,7 @@ export const WHOAMI = 'WHOAMI';
 export const MEME = 'Meme';
 
 
-export const PICK_ONE_TEXT = 'Mira, encontre estas opciones, elige una';
+export const PICK_ONE_TEXT = 'Mira, encontre estas opciones de {{}}, elige una';
 
 export const NOT_FOUND = 'No he podido encontrar lo que buscas';
 

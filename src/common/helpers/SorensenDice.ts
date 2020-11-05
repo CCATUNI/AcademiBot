@@ -46,6 +46,11 @@ export const suggestedThreshold = 0.8;
 export const minimumThreshold = 0.6;
 
 export function SorensenCompare(s1: string, s2: string, threshold = suggestedThreshold) {
+  s1 = s1.toLowerCase();
+  s2 = s2.toLowerCase();
+  if (s2.length > 4 && s2.includes(s1) || s1.includes(s2)) {
+    return true;
+  }
   return SorensenDiceCoefficient(s1, s2) >= threshold;
 }
 

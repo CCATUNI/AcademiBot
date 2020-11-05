@@ -8,6 +8,24 @@ export interface ConversationResponse {
   parameters: { [p: string]: string };
 }
 
+function mapValue(value: {kind: string, [p: string]: any}): any {
+  switch (value.kind) {
+    case 'stringValue':
+      return value['stringValue'];
+    case 'structValue':
+      const obj = {};
+      for (const key in value['structValue'].fields) {
+        if (value['structValue'].fields.hasOwnProperty(key))
+          obj[key] = mapValue(value['structValue'].fields[key]);
+      }
+      return obj;
+    case 'nullValue':
+      return null;
+    default:
+      return null;
+  }
+}
+
 @Injectable()
 export class ConversationService extends SessionsClient {
   private readonly projectId: string;
@@ -39,7 +57,7 @@ export class ConversationService extends SessionsClient {
     const payload: { [key: string]: string } = {};
     const parameters: { [key: string]: any } = {};
 
-    let fulfillmentMessage: { [key: string]: { stringValue?: string } };
+    let fulfillmentMessage: { [key: string]: any };
     for (const value of fulfillmentMessages) {
       if (
         value.message === 'payload' &&
@@ -52,9 +70,7 @@ export class ConversationService extends SessionsClient {
     }
     if (fulfillmentMessage) {
       for (const key in fulfillmentMessage) {
-        if ('stringValue' in fulfillmentMessage[key]) {
-          payload[key] = fulfillmentMessage[key].stringValue;
-        }
+        payload[key] = mapValue(fulfillmentMessage[key]);
       }
     }
     const fields = intent.queryResult.parameters.fields!;

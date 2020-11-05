@@ -179,12 +179,13 @@ export class WebhookService {
           .findForSend({ universityId }))
           .map(toQuickReplyButton);
         if (buttons.length) {
-          await this.facebookService.sendQuickReplies(id, PICK_ONE_TEXT, buttons);
+          const _message = PICK_ONE_TEXT.replace('{{}}', 'ciclos');
+          await this.facebookService.sendQuickReplies(id, _message, buttons);
           ctx.ended = true;
           return ;
         }
       }
-      if (ctx.message) {
+      if (ctx.message && !Object.getOwnPropertyNames(ctx.answer.payload).length) {
         if (!courseId) {
           const includeElectives = account.user.lookingForElectives;
           const studyPlansMatrix = await this.studyPlanService
@@ -229,7 +230,8 @@ export class WebhookService {
           }
           const buttons = types.map(toQuickReplyButton);
           if (buttons.length) {
-            await this.facebookService.sendQuickReplies(id, PICK_ONE_TEXT, buttons);
+            const _message = PICK_ONE_TEXT.replace('{{}}', `exámenes de ${courseId}`);
+            await this.facebookService.sendQuickReplies(id, _message, buttons);
             ctx.ended = true;
           }
           return ;
@@ -248,7 +250,8 @@ export class WebhookService {
             .findActivityTypes({ universityId, courseId });
           const buttons = types.map(toQuickReplyButton);
           if (buttons.length) {
-            await this.facebookService.sendQuickReplies(id, PICK_ONE_TEXT, buttons);
+            const _message = PICK_ONE_TEXT.replace('{{}}', `exámenes de ${courseId}`);
+            await this.facebookService.sendQuickReplies(id, _message, buttons);
             ctx.ended = true;
           }
         }
@@ -299,7 +302,8 @@ export class WebhookService {
           .findAll(find);
         if (studyMaterial.length) {
           const buttons = studyMaterial.map(toQuickReplyButton);
-          await this.facebookService.sendQuickReplies(id, PICK_ONE_TEXT, buttons);
+          const _message = PICK_ONE_TEXT.replace('{{}}', `${user.activityTypeId} de ${user.courseId}`);
+          await this.facebookService.sendQuickReplies(id, _message, buttons);
         } else {
           await user.update({ activityTypeId: null });
           await this.facebookService.sendText(id, NOT_FOUND, false);
@@ -385,9 +389,9 @@ export class WebhookService {
   private async executeAnswer(ctx: PartialWebhookContext) {
     const { answer } = ctx;
     if (!Object.getOwnPropertyNames(answer.payload).length) {
+      await this.regularizeUser(ctx);
       return ;
     }
-    // TODO: Modify dialogflow
     if (answer.payload.command) {
       return this.executeCommand(ctx)
     } else if (answer.payload.petition) {
@@ -403,9 +407,8 @@ export class WebhookService {
       console.log(postback.payload);
     }
 
-    this.facebookService.markSeen(id)
-      .then(() => this.facebookService.typingOn(id))
-      .catch(e => console.error(e.message));
+    await this.facebookService.markSeen(id)
+      .then(() => this.facebookService.typingOn(id));
     const account = await this.getAccount(id);
     const payload = postback.payload;
     const answer: ConversationResponse = undefined;
@@ -444,9 +447,8 @@ export class WebhookService {
       console.log(message);
       console.log(message.quick_reply);
     }
-    this.facebookService.markSeen(id)
-      .then(() => this.facebookService.typingOn(id))
-      .catch(e => console.error(e.message));
+    await this.facebookService.markSeen(id)
+      .then(() => this.facebookService.typingOn(id));
     const text = message.text;
     const account = await this.getAccount(id);
     account
