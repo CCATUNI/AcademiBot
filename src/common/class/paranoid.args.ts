@@ -4,6 +4,6 @@ import { ArgsType, Field } from '@nestjs/graphql';
 @ArgsType()
 export class ParanoidArgs {
   @IsBoolean()
-  @Field({ nullable: true })
+  @Field({ nullable: true, defaultValue: true })
   public paranoid?: boolean = true;
 }

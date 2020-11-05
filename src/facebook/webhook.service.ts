@@ -415,7 +415,7 @@ export class WebhookService {
     const ctx: PartialWebhookContext = { account, answer, ended: false };
 
     try {
-      ctx.answer = JSON.parse(payload);
+      ctx.answer = { payload: JSON.parse(payload), parameters: undefined, text: undefined };
       await this.executeAnswer(ctx);
     } catch (e) {
       if (!this.appConfiguration.production) {
