@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsNumber, Length, Min, ValidateNested } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Length, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 @InputType()
@@ -29,7 +29,11 @@ export class UploadFileDto {
 export class UploadFileBodyDto {
   @ValidateNested({ each: true })
   @Type(() => UploadFileDto)
-  data: UploadFileDto[];
+  public data: UploadFileDto[];
+
+  @IsString()
+  @IsOptional()
+  public name?: string;
 }
 
 export class AssignFileDto {

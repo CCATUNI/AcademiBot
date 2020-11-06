@@ -38,7 +38,7 @@ export class FileSyncService {
     console.log("STARTING SYNC PUBLIC URLS - FACEBOOK");
     await this.createPublicUrls();
     console.log("STARTING SYNC ACCOUNTS")
-    const limit = 100;
+    const limit = 50;
     let offset = 0;
     // POSSIBLE BUG TO CARE IF REFACTORING
     const publicUrl = { [Op.not]: null } as unknown as string;
@@ -59,6 +59,7 @@ export class FileSyncService {
           include: [{ model: FileAccount }]
         });
     }
+    console.log("FINISHED ACCOUNT SYNC.");
   }
 
   private async createPublicUrls() {
@@ -75,8 +76,12 @@ export class FileSyncService {
   private async populateAccounts(file: File) {
     const fbAccount = file.accounts
       .find(v => v.platformId === FacebookService.PLATFORM);
-    const url = file.getPrivateUrl() ?
-      `${this.appConfiguration.server}/file/${file.getPrivateUrl()}` : file.publicUrl;
+    let url: string;
+    if (file.name) {
+      url = `${this.appConfiguration.server}/file/${file.getPrivateUrl()}`
+    } else {
+      url = file.publicUrl;
+    }
     const fileType = FacebookService
       .determineAttachmentType(file.contentType);
     let reUtilizationCode: string;
@@ -95,9 +100,9 @@ export class FileSyncService {
       }
       return this.fileAccountService.create({...options, reUtilizationCode })
         .catch(console.error);
-    }
-    else {
+    } else {
       if (!fbAccount.reUtilizationCode) {
+        console.log('Updating file with url :' + url);
         const options = {
           platformId: FacebookService.PLATFORM,
           fileId: file.id

@@ -23,6 +23,12 @@ export class FindFileArgs extends ParanoidArgs {
 
 @ArgsType()
 export class FindFilesArgs extends ParanoidArgs {
+
+  @IsString()
+  @IsOptional()
+  @Field({ nullable: true })
+  public name?: string;
+
   @IsOptional()
   @Length(0, 255)
   @Field({ nullable: true })

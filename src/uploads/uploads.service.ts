@@ -4,7 +4,7 @@ import { StudyMaterialService } from '../core/study-material/services/study-mate
 import { uploadConstants } from './uploads.constants';
 import { FileService } from '../core/file/services/file.service';
 import { FilesystemService } from '../filesystem/filesystem.service';
-import { AssignFileDto, UploadFileDto } from './uploads.dto';
+import { AssignFileDto, UploadFileBodyDto } from './uploads.dto';
 
 @Injectable()
 export class UploadsService {
@@ -15,8 +15,10 @@ export class UploadsService {
     private filesystemService: FilesystemService
   ) {}
 
-  async loadOne(buffer: Buffer, createStudyMaterialsDto: UploadFileDto[], prefix = uploadConstants.folder) {
+  async loadOne(buffer: Buffer, uploadFileBodyDto: UploadFileBodyDto, prefix = uploadConstants.folder) {
+    const createStudyMaterialsDto = uploadFileBodyDto.data;
     const createFileDto = await this.fileLoaderService.loadOne(buffer, prefix);
+    createFileDto.name = uploadFileBodyDto.name;
     delete createFileDto.buffer;
     const file = await this.fileService.findOrCreate(createFileDto);
     await this.filesystemService.createObject(createFileDto.filesystemKey, {

@@ -28,7 +28,8 @@ export class FileLoaderService {
       filesystemKey: key,
       extension,
       contentType,
-      buffer
+      buffer,
+      name: undefined
     }
   }
 
