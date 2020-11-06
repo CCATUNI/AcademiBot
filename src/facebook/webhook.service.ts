@@ -415,7 +415,8 @@ export class WebhookService {
     const ctx: PartialWebhookContext = { account, answer, ended: false };
 
     try {
-      ctx.answer = { payload: JSON.parse(payload), parameters: undefined, text: undefined };
+      // Ensure this works with the buttons.
+      ctx.answer = JSON.parse(payload);
       await this.executeAnswer(ctx);
     } catch (e) {
       if (!this.appConfiguration.production) {
