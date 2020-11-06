@@ -43,7 +43,7 @@ export function accountToText(account: UserAccount) {
   if (user) {
     response += `\n\nUniversity: ${user.universityId}\n`;
     response += `StudyProgram: ${user.studyProgramId}\n`;
-    response += `StudyPeriod: ${user.studyPeriod}\n`;
+    response += `StudyPeriod: ${user.studyPeriodId}\n`;
     response += `Course: ${user.courseId}\n`;
     response += `Requests: ${account.successfulRequests + account.failedRequests}`;
   }
