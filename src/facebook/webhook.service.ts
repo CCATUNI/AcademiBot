@@ -187,30 +187,9 @@ export class WebhookService {
       }
       if (ctx.message && !Object.getOwnPropertyNames(ctx.answer.payload).length) {
         if (!courseId) {
-          const includeElectives = account.user.lookingForElectives;
-          const studyPlansMatrix = await this.studyPlanService
-            .findForUser({ universityId, studyProgramId, studyPeriodId, includeElectives });
-          for (const studyPlans of studyPlansMatrix) {
-            const stringMatrix = [
-              studyPlans.map(v => v.course.id),
-              studyPlans.map(v => v.course.title)
-            ];
-            for (const strings of stringMatrix) {
-              const indexes = SorensenFilter(ctx.message.text, strings);
-              if (indexes.length) {
-                if (indexes.length === 1) {
-                  const i = indexes[0];
-                  await account.user.setCourse(studyPlans[i].course);
-                  return this.regularizeUser(ctx);
-                }
-                if (indexes.length < 5) {
-                  const cards = indexes.map(i => toCard(studyPlans[i].course));
-                  await this.facebookService.sendCardsMenu(id, cards);
-                  ctx.ended = true;
-                  return ;
-                }
-              }
-            }
+          await this.matchCourses(ctx);
+          if (ctx.ended) {
+            return ;
           }
         } else if (!activityTypeId) {
           const types = await this.studyMaterialService
@@ -259,6 +238,38 @@ export class WebhookService {
 
     }
 
+  }
+
+  private async matchCourses(ctx: PartialWebhookContext) {
+    const account = ctx.account;
+    const { user } = account;
+    const id = account.identifierInPlatform;
+    const { universityId, studyPeriodId, studyProgramId } = user;
+    const includeElectives = account.user.lookingForElectives;
+    const studyPlansMatrix = await this.studyPlanService
+      .findForUser({ universityId, studyProgramId, studyPeriodId, includeElectives });
+    for (const studyPlans of studyPlansMatrix) {
+      const stringMatrix = [
+        studyPlans.map(v => v.course.id),
+        studyPlans.map(v => v.course.title)
+      ];
+      for (const strings of stringMatrix) {
+        const indexes = SorensenFilter(ctx.message.text, strings);
+        if (indexes.length) {
+          if (indexes.length === 1) {
+            const i = indexes[0];
+            await account.user.setCourse(studyPlans[i].course);
+            return this.regularizeUser(ctx);
+          }
+          if (indexes.length < 5) {
+            const cards = indexes.map(i => toCard(studyPlans[i].course));
+            await this.facebookService.sendCardsMenu(id, cards);
+            ctx.ended = true;
+            return ;
+          }
+        }
+      }
+    }
   }
 
   private async executeCommand(ctx: PartialWebhookContext) {
@@ -389,7 +400,7 @@ export class WebhookService {
   private async executeAnswer(ctx: PartialWebhookContext) {
     const { answer } = ctx;
     if (!Object.getOwnPropertyNames(answer.payload).length) {
-      await this.regularizeUser(ctx);
+      await this.matchCourses(ctx);
       return ;
     }
     if (answer.payload.command) {

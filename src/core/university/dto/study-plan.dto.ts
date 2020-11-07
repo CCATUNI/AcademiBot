@@ -25,7 +25,7 @@ export class FindStudyPlansForUserArgs extends PickType(
   @IsOptional()
   @IsNumber()
   @Field(type => Int, { nullable: true })
-  public studyPeriodId: number;
+  public studyPeriodId?: number;
 
   @IsOptional()
   @Field({ nullable: true })

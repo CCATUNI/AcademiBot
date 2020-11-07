@@ -77,8 +77,31 @@ export class StudyPlanService {
     const results: StudyPlan[][] = [];
     const options = {include:[Course, StudyMaterial]};
     StudyPlanService.addRequiredMultipleForeignKey(options);
+    const { universityId, studyProgramId } = findArgs;
+    const periods: (number|null)[] = [];
+    const where = {
+      universityId,
+      studyProgramId,
+      studyPeriodId: {[Op.or]: [{[Op.in]: periods}]}
+    };
+    if (findArgs.includeElectives) {
+      periods.push(null);
+      where.studyPeriodId[Op.or].push({[Op.is]: null} as any);
+    }
+    if (typeof findArgs.studyPeriodId === 'number') {
+      const i = findArgs.studyPeriodId;
+      periods.push(i);
+      for (let j = 1; j < 3; j++) {
+        periods.push(i - j);
+        periods.push(i + j);
+      }
+    }
+    for (let i = 0; i < periods.length; i++) {
+      results.push([]);
+    }
     // IncludeElectives is only relevant if study period is set to other than null
-    if (findArgs.includeElectives && findArgs.studyPeriodId) {
+    const partials = await this.repository.findAll({ where, ...options });
+    /*if (findArgs.includeElectives) {
       delete findArgs.includeElectives;
       const secondWhere = {...findArgs};
       secondWhere.studyPeriodId = null;
@@ -95,8 +118,15 @@ export class StudyPlanService {
       } as unknown as number;
     }
     const partials = await this.repository
-      .findAll({ where: {...findArgs}, ...options})
-    if (findArgs.studyPeriodId) {
+      .findAll({ where: {...findArgs}, ...options})*/
+    for (const partial of partials) {
+      for (let i = 0; i < periods.length; i++) {
+        if (partial.studyPeriodId === periods[i]) {
+          results[i].push(partial);
+        }
+      }
+    }
+    /*if (findArgs.studyPeriodId) {
       for (let abs = 0; abs <= 2; abs++) {
         const partial = partials
           .filter(v => Math.abs(v.studyPeriodId - num) === abs);
@@ -105,7 +135,7 @@ export class StudyPlanService {
       }
     } else {
       results.push(partials);
-    }
+    }*/
     return results;
   }
 }

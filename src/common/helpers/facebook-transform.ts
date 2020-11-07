@@ -45,7 +45,8 @@ export function accountToText(account: UserAccount) {
     response += `StudyProgram: ${user.studyProgramId}\n`;
     response += `StudyPeriod: ${user.studyPeriodId}\n`;
     response += `Course: ${user.courseId}\n`;
-    response += `Requests: ${account.successfulRequests + account.failedRequests}`;
+    response += `Requests: ${account.successfulRequests + account.failedRequests}\n`;
+    response += `Looking for electives: ${user.lookingForElectives}`;
   }
   return response;
 }
