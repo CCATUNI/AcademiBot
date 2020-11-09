@@ -8,7 +8,7 @@ import * as rp from 'request-promise';
 
 async function infinitePing(url: string) {
   for (;;) {
-    let time = (Math.random() * 60 * 1000) + 1000*15;
+    let time = (Math.random() * 60 * 1000) + 1000*60*5;
     await rp(url);
     await new Promise(resolve => setTimeout(resolve, time));
   }
