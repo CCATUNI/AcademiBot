@@ -361,7 +361,8 @@ export class WebhookService {
         await this.executeCommand(ctx);
         return ;
       default:
-        throw new Error("Not supported command " + command);
+        ctx.answer.text = "La opción que has elegido no existe actualmente, prueba con las nuevas opciones.";
+        return;
     }
   }
 
