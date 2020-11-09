@@ -9,6 +9,7 @@ import { microserviceOptions } from '../microservices.constants';
     GraphQLModule.forRoot({
       playground: microserviceOptions.graphqlApi,
       installSubscriptionHandlers: true,
+      introspection: true,
       autoSchemaFile: 'schema.graphql',
       sortSchema: true,
       cacheControl: {
