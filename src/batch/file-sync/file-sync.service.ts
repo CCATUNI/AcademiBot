@@ -87,6 +87,7 @@ export class FileSyncService {
     let reUtilizationCode: string;
 
     if (!fbAccount) {
+      console.log('Creating file with url :' + url);
       const options = {
         fileType,
         platformId: FacebookService.PLATFORM,
@@ -97,6 +98,14 @@ export class FileSyncService {
         reUtilizationCode = attachmentId;
       } catch (e) {
         console.error(e.error);
+        try {
+          if (url !== file.publicUrl && file.publicUrl) {
+            const { attachmentId } = await this.facebookService.getAttachmentId({ fileType, url: file.publicUrl });
+            reUtilizationCode = attachmentId;
+          }
+        } catch (e) {
+          console.error(e.error);
+        }
       }
       return this.fileAccountService.create({...options, reUtilizationCode })
         .catch(console.error);
@@ -112,6 +121,14 @@ export class FileSyncService {
           reUtilizationCode = attachmentId;
         } catch (e) {
           console.error(e.error);
+          try {
+            if (url !== file.publicUrl && file.publicUrl) {
+              const { attachmentId } = await this.facebookService.getAttachmentId({ fileType, url: file.publicUrl });
+              reUtilizationCode = attachmentId;
+            }
+          } catch (e) {
+            console.error(e.error);
+          }
         }
         return this.fileAccountService.update({...options, reUtilizationCode }, options)
           .catch(console.error);

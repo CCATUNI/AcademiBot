@@ -28,4 +28,10 @@ export class UploadsController {
     return this.uploadsService.assignFiles(assignDto);
   }
 
+  @Post('media')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadMedia(@UploadedFile() file: Express.Multer.File, @Body() body: { prefix: string, name?: string }) {
+    return this.uploadsService.loadMedia(file.buffer, body.prefix, body.name);
+  }
+
 }

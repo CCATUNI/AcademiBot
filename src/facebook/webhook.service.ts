@@ -357,8 +357,8 @@ export class WebhookService {
           this.platform.createFileRequest(values)
             .catch(console.error);
         }
-        ctx.ended = true;
-        await this.regularizeUser(ctx);
+        ctx.answer.payload = { command: SHOW_STUDY_MATERIAL };
+        await this.executeCommand(ctx);
         return ;
       default:
         throw new Error("Not supported command " + command);

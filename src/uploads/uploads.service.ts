@@ -15,6 +15,19 @@ export class UploadsService {
     private filesystemService: FilesystemService
   ) {}
 
+  async loadMedia(buffer: Buffer, prefix: string, name?: string) {
+    const createFileDto = await this.fileLoaderService.loadOne(buffer, prefix);
+    createFileDto.name = name;
+    delete createFileDto.buffer;
+    const file = await this.fileService.findOrCreate(createFileDto);
+    await this.filesystemService.createObject(createFileDto.filesystemKey, {
+      Body: buffer,
+      ContentLength: createFileDto.sizeInBytes,
+      ContentType: createFileDto.contentType
+    });
+    return file;
+  }
+
   async loadOne(buffer: Buffer, uploadFileBodyDto: UploadFileBodyDto, prefix = uploadConstants.folder) {
     const createStudyMaterialsDto = uploadFileBodyDto.data;
     const createFileDto = await this.fileLoaderService.loadOne(buffer, prefix);
