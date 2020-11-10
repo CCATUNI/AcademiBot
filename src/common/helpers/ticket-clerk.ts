@@ -25,12 +25,12 @@ export async function createTicket(createTicketDto: { quantity: number, id: stri
   const uuid = v1();
   let description1 = 'Ticket generado automáticamente por su gentil donación';
   let description2 =
-    'de ' + amt + ' recursos de estudio, muchas gracias por su apoyo.';
+    'de ' + amt + ' recursos, muchas gracias por su apoyo.';
   let description3 = uuid;
   const p = Path.resolve(process.cwd(), `./tmp/${uuid}.png`);
   await image
     .print(font, 230, 375, description1)
-    .print(font, 220, 415, description2)
+    .print(font, 250, 415, description2)
     .print(font2, 200, 500, description3)
     .print(font2, 900, 500, hour)
     .rotate(90)

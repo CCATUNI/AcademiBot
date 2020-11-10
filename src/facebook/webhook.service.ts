@@ -141,7 +141,7 @@ export class WebhookService {
     const createFileDto = await this.fileLoaderService
       .loadFromFile(path, `users/${account.userId}/tickets/`);
     const file = await this.fileService.create(createFileDto);
-    await this.platform.createFileSubmission({
+    await this.platform.createFileRequest({
       userId: account.userId,
       fileId: file.id
     });
