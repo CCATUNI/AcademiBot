@@ -464,12 +464,14 @@ export class WebhookService {
       .then(() => this.facebookService.typingOn(id));
     const text = message.text;
     const account = await this.getAccount(id);
-    account
-      .createMessage({ textContent: text, sentByUser: true })
-      .catch(console.error);
+    if (text)
+      account
+        .createMessage({ textContent: text, sentByUser: true })
+        .catch(console.error);
     // Left as not awaited promises on purpose
 
     if (message.attachments) {
+      console.log(message.attachments);
       const urls = message.attachments
         .filter(v => v.payload && v.payload.url && !v.payload.sticker_id)
         .map(v => v.payload.url);
