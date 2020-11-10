@@ -45,8 +45,9 @@ export class WebhookMessage {
   @IsString()
   public mid: string;
 
+  @IsOptional()
   @IsString()
-  public text: string;
+  public text?: string;
 
   @IsOptional()
   @Type(() => QuickReply)
