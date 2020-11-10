@@ -1,6 +1,7 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Res } from '@nestjs/common';
 import { FileService } from './services/file.service';
 import { FilesystemService } from '../../filesystem/filesystem.service';
+import * as Express from 'express';
 
 @Controller('file')
 export class FileController {
@@ -10,11 +11,11 @@ export class FileController {
   ) {}
 
   @Get(':sha/:name')
-  async getFileBySha(@Param('sha') contentSha256: string,  @Param('name') name: string) {
+  async getFileBySha(@Param('sha') contentSha256: string,  @Param('name') name: string, @Res() res: Express.Response) {
     const file = await this.fileService.findOne({ contentSha256 });
     if (!file) throw new NotFoundException();
-    const buffer = await this.filesystemService.getObject(file.filesystemKey);
-    return buffer.Body;
+    const stream = this.filesystemService.createReadableStream(file.filesystemKey);
+    stream.pipe(res);
   }
 
 }

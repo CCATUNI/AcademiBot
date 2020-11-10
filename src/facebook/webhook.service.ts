@@ -335,8 +335,7 @@ export class WebhookService {
         const attachments = studyFiles.map(v => {
           const account = v.file.accounts
             .find(a => a.platformId === FacebookService.PLATFORM);
-          const url = v.file.getPrivateUrl() ?
-            `${this.server}/file/${v.file.getPrivateUrl()}` : v.file.publicUrl;
+          const url = v.file.publicUrl;
           return {
             fileType: account.fileType,
             url,
