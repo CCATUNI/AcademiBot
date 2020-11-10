@@ -14,17 +14,21 @@ export class Payload {
   @IsUrl()
   public url: string;
 
+  @IsOptional()
   @IsString()
   public title?: string;
 
+  @IsOptional()
   @IsString()
-  public sticker_id: string;
+  public sticker_id?: string;
 
+  @IsOptional()
   @IsNumber()
-  public 'coordinates.lat': number;
+  public 'coordinates.lat'?: number;
 
+  @IsOptional()
   @IsNumber()
-  public 'coordinates.long': number;
+  public 'coordinates.long'?: number;
 }
 
 
@@ -32,7 +36,7 @@ export class Attachment {
   @IsEnum(AttachmentType)
   public type: AttachmentType;
 
-  @Type(() => Payload)
+  @IsObject()
   public payload: Payload;
 }
 
