@@ -9,6 +9,7 @@ import { StudyMaterial } from './models/study-material.model';
 import { StudyMaterialService } from './services/study-material.service';
 import { StudyMaterialController } from './study-material.controller';
 import { StudyMaterialRequest } from './models/study-material-request.model';
+import { StudyMaterialRequestResolver } from './resolvers/study-material-request.resolver';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { StudyMaterialRequest } from './models/study-material-request.model';
     ActivityTypeResolver,
     StudyFileResolver,
     StudyMaterialResolver,
-    StudyMaterialService
+    StudyMaterialService,
+    StudyMaterialRequestResolver
   ],
   exports: [
     SequelizeModule,
