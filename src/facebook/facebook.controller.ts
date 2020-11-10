@@ -39,6 +39,7 @@ export class FacebookController {
           this.webhookService.receivePostback(id, messaging.postback)
             .catch(console.error);
         } else {
+          console.error(messaging);
           throw new HttpException(body, HttpStatus.BAD_REQUEST);
         }
       }
