@@ -28,7 +28,12 @@ export class SequelizeConfigService implements SequelizeOptionsFactory {
       pool: {
         min: 2
       },
-      logQueryParameters: true
+      logQueryParameters: true,
+      dialectOptions: {
+        dateStrings: true,
+        typeCast: true,
+        useUTC: false,
+      }
     };
   }
 

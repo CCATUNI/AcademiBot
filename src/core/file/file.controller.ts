@@ -15,6 +15,10 @@ export class FileController {
     const file = await this.fileService.findOne({ contentSha256 });
     if (!file) throw new NotFoundException();
     const stream = this.filesystemService.createReadableStream(file.filesystemKey);
+    res.writeHead(200, {
+      'Content-Type': file.contentType,
+      'Accept-Ranges': 'bytes'
+    })
     stream.pipe(res);
   }
 

@@ -471,7 +471,6 @@ export class WebhookService {
     // Left as not awaited promises on purpose
 
     if (message.attachments) {
-      console.log(message.attachments);
       const urls = message.attachments
         .filter(v => v.payload && v.payload.url && !v.payload.sticker_id)
         .map(v => v.payload.url);

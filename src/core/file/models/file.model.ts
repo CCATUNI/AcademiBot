@@ -2,7 +2,7 @@ import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { FileAccount } from './file-account.model';
 import { StudyFile } from '../../study-material/models/study-file.model';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { HasManyGetAssociationsMixin } from 'sequelize';
+import { HasManyCreateAssociationMixin, HasManyGetAssociationsMixin } from 'sequelize';
 
 @ObjectType()
 @Table({
@@ -69,6 +69,8 @@ export class File extends Model<File> {
   @Field(type => [FileAccount])
   @HasMany(() => FileAccount)
   public accounts: FileAccount[];
+
+  public createAccount: HasManyCreateAssociationMixin<FileAccount>;
 
   @Field(type => [StudyFile])
   @HasMany(() => StudyFile)
