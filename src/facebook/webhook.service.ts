@@ -429,6 +429,8 @@ export class WebhookService {
     try {
       // Ensure this works with the buttons.
       ctx.answer = JSON.parse(payload);
+    } catch {}
+    try {
       await this.executeAnswer(ctx);
     } catch (e) {
       if (!this.appConfiguration.production) {
