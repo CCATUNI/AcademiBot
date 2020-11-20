@@ -429,7 +429,14 @@ export class WebhookService {
     try {
       // Ensure this works with the buttons.
       ctx.answer = JSON.parse(payload);
-    } catch {}
+    } catch (e) {
+      if (!this.appConfiguration.production) {
+        console.error(e);
+        ctx.answer = {text:undefined, payload: {
+          command: payload
+          }, parameters: {}};
+      }
+    }
     try {
       await this.executeAnswer(ctx);
     } catch (e) {
