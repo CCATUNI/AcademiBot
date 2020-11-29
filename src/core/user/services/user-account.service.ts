@@ -26,7 +26,8 @@ export class UserAccountService {
         const user = await this.userRepository.create({}, { transaction });
         createDto.userId = user.id;
       }
-      return this.accountRepository.create(createDto, { transaction });
+      await this.accountRepository.create(createDto, { transaction });
+      return this.findOne({ userId: createDto.userId, platformId: createDto.platformId });
     });
   }
 

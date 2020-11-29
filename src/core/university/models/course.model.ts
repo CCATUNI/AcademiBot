@@ -43,6 +43,9 @@ export class Course extends Model<Course> {
   @Column(DataType.TEXT)
   public details?: string;
 
+  @HasMany(() => StudyMaterial)
+  public studyMaterials: StudyMaterial[];
+
   public getStudyMaterials!: HasManyGetAssociationsMixin<StudyMaterial>;
 
   @HasMany(() => StudyPlan)

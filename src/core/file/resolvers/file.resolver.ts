@@ -22,7 +22,7 @@ export class FileResolver {
     @QueryFields(File) attributes: string[],
     @QueryIncludes(['accounts', 'studyFiles']) includes: boolean[]
   ) {
-    if (!findArgs.id && !findArgs.filesystemKey) {
+    if (!findArgs.id && !findArgs.filesystemKey && !findArgs.contentSha256) {
       throw new Error("Must query by at least one value.");
     }
     const include = [FileAccount, StudyFile].filter((v, i) => includes[i]);

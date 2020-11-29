@@ -8,6 +8,7 @@ import { QueryIncludes } from '../../../common/decorators/query-includes.decorat
 import { StudyPlan } from '../models/study-plan.model';
 import { StudyMaterial } from '../../study-material/models/study-material.model';
 import { Op } from 'sequelize';
+import { StudyFile } from '../../study-material/models/study-file.model';
 
 @Resolver(of => Course)
 export class CourseResolver {
@@ -73,5 +74,19 @@ export class CourseResolver {
     }
     const include = [StudyMaterial].filter((v, i) => includes[i]);
     return parent.getStudyPlans({ attributes, include });
+  }
+
+  @ResolveField(() => [StudyMaterial])
+  studyMaterials(
+    @Parent() parent: Course,
+    @QueryFields(StudyMaterial) attributes: string[],
+  @QueryIncludes(['files']) includes: boolean[]
+  ) {
+    const bigReduce = includes.reduce((p, c) => p || c);
+    if (!bigReduce) {
+      if (parent.studyMaterials) return parent.studyMaterials;
+    }
+    const include = [StudyFile].filter((v, i) => includes[i]);
+    return parent.getStudyMaterials({ attributes, include });
   }
 }
