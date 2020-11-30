@@ -342,7 +342,7 @@ export class WebhookService {
         const attachments = studyFiles.map(v => {
           const account = v.file.accounts
             .find(a => a.platformId === FacebookService.PLATFORM);
-          const url = `${this.server}/file/${v.file.contentSha256}`;
+          const url = `${this.server}/file/${v.file.contentSha256}.${v.file.extension || 'txt'}`;
           return {
             fileType: account.fileType,
             url,
