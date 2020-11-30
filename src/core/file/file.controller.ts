@@ -10,7 +10,7 @@ export class FileController {
     private filesystemService: FilesystemService
   ) {}
 
-  @Get(':sha*')
+  @Get(':sha[./]*')
   async getFileBySha(@Param('sha') contentSha256: string, @Res() res: Express.Response) {
     const file = await this.fileService.findOne({ contentSha256 });
     if (!file) throw new NotFoundException();
