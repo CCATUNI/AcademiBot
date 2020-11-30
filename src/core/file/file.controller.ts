@@ -14,13 +14,18 @@ export class FileController {
   async getFileBySha(@Param('sha') contentSha256: string, @Res() res: Express.Response) {
     const file = await this.fileService.findOne({ contentSha256 });
     if (!file) throw new NotFoundException();
-    const stream = this.filesystemService.createReadableStream(file.filesystemKey);
-    res.writeHead(200, {
-      'Content-Type': file.contentType,
-      'Accept-Ranges': 'bytes',
-      'Content-disposition': `inline; filename=${file.name}.${file.extension || 'txt'}`
-    })
-    stream.pipe(res);
+    try {
+      const stream = this.filesystemService.createReadableStream(file.filesystemKey);
+      res.writeHead(200, {
+        'Content-Type': file.contentType,
+        'Accept-Ranges': 'bytes',
+        'Content-disposition': `inline; filename=${file.name}.${file.extension || 'txt'}`
+      })
+      stream.pipe(res);
+    } catch (e) {
+      console.log(e);
+      res.sendStatus(400);
+    }
   }
 
 }
