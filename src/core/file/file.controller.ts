@@ -19,7 +19,8 @@ export class FileController {
       res.writeHead(200, {
         'Content-Type': file.contentType,
         'Accept-Ranges': 'bytes',
-        'Content-disposition': `inline; filename=${file.name}.${file.extension || 'txt'}`
+        'Content-disposition': `inline; filename=${file.name}.${file.extension || 'txt'}`,
+        'Content-Length': file.sizeInBytes
       })
       stream.pipe(res);
     } catch (e) {
