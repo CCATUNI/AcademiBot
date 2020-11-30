@@ -80,11 +80,6 @@ export class File extends Model<File> {
 
   public getStudyFiles: HasManyGetAssociationsMixin<StudyFile>;
 
-  public getPrivateUrl(): string {
-    if (!this.name) return null;
-    return `${this.contentSha256}/${this.name}${this.extension ? '.'+this.extension : ''}`
-  }
-
   @Field()
   public createdAt: Date;
 
