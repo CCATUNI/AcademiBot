@@ -76,7 +76,7 @@ export class FileSyncService {
   private async populateAccounts(file: File) {
     const fbAccount = file.accounts
       .find(v => v.platformId === FacebookService.PLATFORM);
-    const url = `${this.appConfiguration.server}/file/${file.contentSha256}/${file.name}.${file.extension || 'txt'}`;
+    const url = `${this.appConfiguration.server}/file/${file.contentSha256}`;
     const fileType = FacebookService
       .determineAttachmentType(file.contentType);
     let reUtilizationCode: string;
