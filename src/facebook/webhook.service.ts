@@ -37,6 +37,7 @@ import appConfig from '../config/app.config';
 import { ConfigType } from '@nestjs/config';
 import { FindStudyMaterialArgs } from '../core/study-material/dto/study-material.dto';
 import { StudyMaterial } from '../core/study-material/models/study-material.model';
+import { FilesystemService } from '../filesystem/filesystem.service';
 
 type WebhookContext = {
   account: UserAccount;
@@ -75,6 +76,7 @@ export class WebhookService {
     private fileAccountService: FileAccountService,
     private platformService: PlatformService,
     private fileLoaderService: FileLoaderService,
+    private filesystemService: FilesystemService,
     @Inject(appConfig.KEY)
     private readonly appConfiguration: ConfigType<typeof appConfig>
   ) {
@@ -146,6 +148,11 @@ export class WebhookService {
       fileId: file.id
     });
     const readable = fs.createReadStream(path);
+    await this.filesystemService.createObject(createFileDto.filesystemKey, {
+      Body: fs.createReadStream(path),
+      ContentLength: createFileDto.sizeInBytes,
+      ContentType: createFileDto.contentType
+    });
     await this.facebookService
       .sendAttachmentFromLocal(id, readable, 'image', createFileDto.contentType);
     return ;
@@ -560,6 +567,7 @@ export const WebhookProvider: FactoryProvider<Promise<WebhookService>> = {
     fileAccountService: FileAccountService,
     platformService: PlatformService,
     fileLoaderService: FileLoaderService,
+    filesystemService: FilesystemService,
     appConfiguration: ConfigType<typeof appConfig>
   ) => {
     const service = new WebhookService(
@@ -577,6 +585,7 @@ export const WebhookProvider: FactoryProvider<Promise<WebhookService>> = {
       fileAccountService,
       platformService,
       fileLoaderService,
+      filesystemService,
       appConfiguration
     );
     await service.setup();
@@ -597,6 +606,7 @@ export const WebhookProvider: FactoryProvider<Promise<WebhookService>> = {
     FileAccountService,
     PlatformService,
     FileLoaderService,
+    FilesystemService,
     appConfig.KEY
   ]
 }
